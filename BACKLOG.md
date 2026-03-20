@@ -12,6 +12,7 @@ Status legend: `todo` | `doing` | `blocked` | `done`
 
 - [done] Add timed status reporting every 5 minutes regardless of milestone, optimized for minimal-token / maximum-information output (progress-bar style if practical)
 - [done] Add heartbeat/progress helper with reporting levels
+- [todo] Extend task reporter to show both current task progress and full project status as separate progress bars
 - [doing] Add subagent dispatch/controller helper
 - [todo] Add resume bootstrap helper for running tasks after reset
 - [done] Define task complexity levels (0..N) and artifact-selection rules

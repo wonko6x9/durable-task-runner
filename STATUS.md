@@ -29,6 +29,7 @@ Milestone 5 — Progress + reporting control
 
 - moving from reporting-control into subagent orchestration
 - preparing dispatch/controller helper design that stays simple on the surface
+- backlog updated with a reporting enhancement: separate progress bars for current task progress and full project status
 
 ## Next step
 
