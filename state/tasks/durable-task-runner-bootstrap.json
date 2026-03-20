@@ -18,9 +18,9 @@
   "phase": "reporting-control",
   "health": "healthy",
   "created_at": "2026-03-20T20:44:04Z",
-  "updated_at": "2026-03-20T21:05:23Z",
+  "updated_at": "2026-03-20T22:06:53Z",
   "status_update_interval_seconds": 300,
-  "last_status_update_at": "2026-03-20T21:05:23Z",
+  "last_status_update_at": "2026-03-20T22:06:53Z",
   "last_verified_step": "",
   "next_step": "wire timed ticker into status helper / heartbeat path",
   "operator_note": "",
@@ -136,7 +136,16 @@
       ]
     }
   ],
-  "artifacts": [],
+  "artifacts": [
+    {
+      "kind": "delivery_binding",
+      "channel": "telegram",
+      "account_id": "default",
+      "target": "telegram:1501302070",
+      "surface": "direct-chat",
+      "note": "Current project heartbeat target inferred from active chat context."
+    }
+  ],
   "risk_notes": [],
   "pending_actions": [],
   "action_states": {},
