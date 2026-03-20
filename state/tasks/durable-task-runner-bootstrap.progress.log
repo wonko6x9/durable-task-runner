@@ -12,3 +12,7 @@
 [2026-03-20T22:40:01Z] [######....]  62% | reporting-control | healthy | Progress + reporting control | next: wire timed ticker into status helper / heartbeat path
 [2026-03-20T22:40:45Z] Milestone 5 complete: timed reporting now delivers end-to-end; moving into subagent orchestration.
 [2026-03-20T22:40:45Z] Bootstrap task advanced to subagent orchestration planning.
+[2026-03-20T22:45:26Z] assigned line demo-line to worker at node draft-brief
+[2026-03-20T22:45:27Z] ingested worker return for demo-line: done / complete -> main
+[2026-03-20T22:45:51Z] Subagent orchestration first cut landed: thin controller helper is working.
+[2026-03-20T22:45:51Z] Subagent milestone advanced; next is hardening the thin controller without bloating it.

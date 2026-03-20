@@ -6,6 +6,7 @@ Current contents:
 - Agent skill: `SKILL.md`
 - Reference schema: `references/task-schema.md`
 - Control helper: `scripts/task_ctl.py`
+- Subagent/controller helper: `scripts/task_subagent_ctl.py`
 - Source provenance: `ATTRIBUTION.md`
 
 Purpose:
@@ -22,3 +23,4 @@ Influences / provenance:
 Status:
 - initial scaffold only
 - planner/orchestrator/resume automation still to be implemented
+tionally minimal: enough structure to prevent dropped work, not enough to require a ritual manual

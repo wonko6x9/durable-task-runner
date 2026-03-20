@@ -24,18 +24,20 @@ Milestone 5 — Progress + reporting control
 - `task_send_status.py` hardened to parse noisy `openclaw message send --json` output
 - `task_status_tick.sh` now routes due updates through real chat delivery instead of local-only logging
 - end-to-end Telegram delivery smoke-tested from the bootstrap task
+- `task_subagent_ctl.py` added as the first thin controller helper
+- helper can assign a line, emit a worker brief, ingest a structured return, and run dropped-line checks
 
 ## In-progress work
 
-- moving from reporting-control into subagent orchestration
-- preparing dispatch/controller helper design that stays simple on the surface
+- subagent orchestration is now in thin-helper hardening mode
+- preserving simple UX while adding just enough controller discipline to avoid dropped work
 - backlog updated with a reporting enhancement: separate progress bars for current task progress and full project status
 
 ## Next step
 
-- add subagent dispatch/controller helper
-- define structured worker result contract
-- add anti-drop controller checks around worker execution
+- tighten dropped-line checks and worker-result handling
+- connect the thin controller helper cleanly to actual subagent runs
+- keep the orchestration model narrow unless real use proves more structure is necessary
 
 ## Blockers
 

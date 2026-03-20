@@ -27,3 +27,8 @@
 - Treat helper/CLI output as potentially mixed-content when shelling out to OpenClaw commands, even when `--json` is requested.
 - Parse the JSON payload defensively instead of assuming stdout is clean.
 - Rationale: config/runtime warnings and transport notes can legitimately surround the payload; brittle parsers make the durable runner less durable.
+
+### Decision: subagent orchestration starts with a thin controller, not a workflow cathedral
+- First implementation should only assign a line, generate a worker brief, ingest a structured return, and detect dropped lines.
+- Do not add scheduling boards, giant state machines, or rich branch choreography until a real task proves they are needed.
+- Rationale: the user wants simple UX and a robust backend, not ceremonial complexity.

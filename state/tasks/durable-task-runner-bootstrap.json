@@ -18,11 +18,11 @@
   "phase": "subagent-orchestration",
   "health": "healthy",
   "created_at": "2026-03-20T20:44:04Z",
-  "updated_at": "2026-03-20T22:40:45Z",
+  "updated_at": "2026-03-20T22:45:51Z",
   "status_update_interval_seconds": 300,
   "last_status_update_at": "2026-03-20T22:40:01Z",
   "last_verified_step": "",
-  "next_step": "add subagent dispatch/controller helper",
+  "next_step": "tighten dropped-line checks and worker-result handling",
   "operator_note": "",
   "steering_note": "",
   "milestones": [
@@ -66,7 +66,7 @@
       "id": "m7",
       "title": "Subagent orchestration layer",
       "status": "running",
-      "percent": 5
+      "percent": 25
     },
     {
       "id": "m8",
@@ -144,6 +144,27 @@
       "target": "telegram:1501302070",
       "surface": "direct-chat",
       "note": "Current project heartbeat target inferred from active chat context."
+    },
+    {
+      "kind": "subagent_lines",
+      "lines": {
+        "demo-line": {
+          "line": "demo-line",
+          "goal": "Prototype the thin controller/worker flow",
+          "owner": "worker",
+          "node": "draft-brief",
+          "status": "done",
+          "goal_status": "complete",
+          "next_role": "main",
+          "assigned_at": "2026-03-20T22:45:26Z",
+          "updated_at": "2026-03-20T22:45:27Z",
+          "last_return_tag": "done",
+          "last_return_at": "2026-03-20T22:45:27Z",
+          "summary": "Smoke-test orchestration artifact and return handling.",
+          "artifacts": [],
+          "last_body": "Goal\n- Prototype the thin controller/worker flow\n\nCompleted\n- Drafted the first worker/controller helper shape\n\nChanged artifacts/files\n- scripts/task_subagent_ctl.py\n\nCurrent status\n- Ready for controller review\n\nNext step\n- Tighten dropped-line detection and docs\n\nRisk\n- First cut is intentionally narrow"
+        }
+      }
     }
   ],
   "risk_notes": [],
