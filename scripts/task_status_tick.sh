@@ -15,6 +15,4 @@ if [ "$DUE" != "True" ] && [ "$DUE" != "true" ]; then
   exit 0
 fi
 
-LINE="$(python3 "$SCRIPT_DIR/task_ticker.py" "$TASK_ID")"
-python3 "$SCRIPT_DIR/task_ctl.py" progress "$TASK_ID" "$LINE" >/dev/null
-printf '%s\n' "$LINE"
+python3 "$SCRIPT_DIR/task_send_status.py" "$TASK_ID"

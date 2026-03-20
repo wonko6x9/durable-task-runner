@@ -10,29 +10,31 @@ healthy
 
 ## Current milestone
 
-Milestone 3 — Self-bootstrap / dogfood lane
+Milestone 7 — Subagent orchestration layer
 
 ## Last completed milestone
 
-Milestone 2 — Interruption + reconcile primitives
+Milestone 5 — Progress + reporting control
 
 ## Last checkpoint
 
-- interruption queue helper added
-- reconcile helper added
-- task state expanded with pending actions / action states / idempotency ledger / reconcile
-- attribution documentation added
+- compact 5-minute ticker renderer added
+- timed status due-check helper added
+- delivery binding persisted in task artifacts
+- `task_send_status.py` hardened to parse noisy `openclaw message send --json` output
+- `task_status_tick.sh` now routes due updates through real chat delivery instead of local-only logging
+- end-to-end Telegram delivery smoke-tested from the bootstrap task
 
 ## In-progress work
 
-- adding explicit project artifacts (`PLAN.md`, `BACKLOG.md`, `STATUS.md`, config)
-- preparing a live durable task record for this project
+- moving from reporting-control into subagent orchestration
+- preparing dispatch/controller helper design that stays simple on the surface
 
 ## Next step
 
-- create the live project task record
-- add decisions log
-- add memory reference file
+- add subagent dispatch/controller helper
+- define structured worker result contract
+- add anti-drop controller checks around worker execution
 
 ## Blockers
 

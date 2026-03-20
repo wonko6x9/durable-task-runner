@@ -22,3 +22,8 @@
 ### Decision: align to PMP / Agile / ITIL principles without copying proprietary text
 - Use principle-level alignment language only.
 - Rationale: gain useful structure and credibility without copyright stupidity.
+
+### Decision: tolerate noisy CLI wrappers at integration boundaries
+- Treat helper/CLI output as potentially mixed-content when shelling out to OpenClaw commands, even when `--json` is requested.
+- Parse the JSON payload defensively instead of assuming stdout is clean.
+- Rationale: config/runtime warnings and transport notes can legitimately surround the payload; brittle parsers make the durable runner less durable.
