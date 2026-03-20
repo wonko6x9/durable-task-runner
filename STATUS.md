@@ -28,6 +28,7 @@ Milestone 5 — Progress + reporting control
 - helper can assign a line, emit a worker brief, ingest a structured return, and run dropped-line checks
 - dropped-line handling is now stricter: lines are classified as `active`, `attention`, `resolved`, or `dropped`
 - controller decisions are now explicit instead of implied, so autopilot/handoff lines do not silently disappear
+- a real spawned worker has now been dogfooded end-to-end through the return protocol and controller ingest path
 
 ## In-progress work
 

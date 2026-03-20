@@ -21,3 +21,6 @@
 [2026-03-20T22:50:33Z] controller decision for autopilot-line: dispatch (assigned -> worker)
 [2026-03-20T22:51:03Z] Subagent controller hardened: anti-drop logic now separates attention from actual dropped work.
 [2026-03-20T22:51:03Z] Next is real spawn/return glue, kept as thin as possible.
+[2026-03-20T22:55:11Z] assigned line real-worker-line to worker at node smoke-test
+[2026-03-20T22:55:11Z] ingested worker return for real-worker-line: done / complete -> main (resolved)
+[2026-03-20T22:55:49Z] Real worker dogfood passed: spawn, return, and ingest all work in the thin orchestration path.

@@ -15,7 +15,7 @@ Status legend: `todo` | `doing` | `blocked` | `done`
 - [todo] Extend task reporter to show both current task progress and full project status as separate progress bars
 - [doing] Add subagent dispatch/controller helper
 - [doing] Tighten dropped-line checks and worker-result handling without bloating the controller
-- [todo] Connect thin controller helper to real subagent runs
+- [doing] Connect thin controller helper to real subagent runs
 - [todo] Add resume bootstrap helper for running tasks after reset
 - [done] Define task complexity levels (0..N) and artifact-selection rules
 - [done] Add STATUS.md format and live project status updates
