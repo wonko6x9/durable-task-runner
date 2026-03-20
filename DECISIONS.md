@@ -48,3 +48,8 @@
 - After classification/recommendation, emit a short ordered plan (`steps[]`) that a controller can follow directly.
 - Keep the plan shallow and declarative; do not build a giant restart state machine unless real failures prove it is necessary.
 - Rationale: this creates an execution bridge without birthing a bureaucracy.
+
+### Decision: bootstrap should apply obvious low-risk resume actions automatically
+- If restart analysis says the task is cleanly resumable, the controller should be able to apply the low-risk follow-through immediately instead of reporting and stalling.
+- Keep the auto-apply surface narrow: resumable main flow / resumable active line first; leave ambiguous or higher-risk cases as controller/operator decisions.
+- Rationale: the whole point of a durable runner is to keep moving unless there is a good reason not to.
