@@ -10,6 +10,9 @@ For task id `<task-id>`:
 
 ## Snapshot schema
 
+Attribution note:
+- This schema is original to this repo, but it is influenced by ideas seen in ClawHub `restart-safe-workflow` (action-state / idempotency / reconcile thinking) and `subagent-orchestrator` (controller/worker separation and explicit task-line progression).
+
 ```json
 {
   "task_id": "email-cleanup-2026-03-20",

@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+"""
+Durable task controller for OpenClaw.
+
+Attribution note:
+- This script is original to this repo.
+- It was conceptually influenced by ClawHub `task-resume` (small helper-script approach
+  for durable recovery state) and `restart-safe-workflow` (explicit task state / event
+  discipline), but it does not directly embed large copied code blocks from those packages.
+"""
+
 from __future__ import annotations
 
 import argparse

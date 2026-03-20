@@ -154,5 +154,13 @@ Decide up front whether subagents are worth using.
 
 Use these helpers:
 - `scripts/task_ctl.py` — create/update/log/control durable tasks
+- `scripts/task_resume_queue.py` — interruption queue helper for resume-after-context-switch behavior
 
 Read `references/task-schema.md` if you need the exact state/event structure.
+
+## Attribution discipline
+
+When this skill or its helpers borrow ideas or adapted code from external skills/packages:
+- record the source in `ATTRIBUTION.md`
+- add inline attribution notes in the relevant file header when the lineage is direct
+- do not quietly absorb other authors' work without credit
