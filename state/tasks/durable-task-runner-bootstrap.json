@@ -15,14 +15,14 @@
   ],
   "desired_state": "running",
   "execution_priority": "tokens",
-  "phase": "planning-model",
+  "phase": "reporting-control",
   "health": "healthy",
   "created_at": "2026-03-20T20:44:04Z",
-  "updated_at": "2026-03-20T20:45:19Z",
+  "updated_at": "2026-03-20T21:05:23Z",
   "status_update_interval_seconds": 300,
-  "last_status_update_at": "2026-03-20T20:45:19Z",
+  "last_status_update_at": "2026-03-20T21:05:23Z",
   "last_verified_step": "",
-  "next_step": "implement reporting helper and configurable reporting levels",
+  "next_step": "wire timed ticker into status helper / heartbeat path",
   "operator_note": "",
   "steering_note": "",
   "milestones": [
@@ -54,7 +54,7 @@
       "id": "m5",
       "title": "Progress + reporting control",
       "status": "running",
-      "percent": 25
+      "percent": 60
     },
     {
       "id": "m6",
@@ -111,10 +111,28 @@
     {
       "id": "reporting-helper",
       "title": "Implement reporting helper",
-      "status": "doing",
+      "status": "done",
       "owner": "main",
       "depends_on": [
         "level-model"
+      ]
+    },
+    {
+      "id": "timed-ticker",
+      "title": "Implement compact 5-minute ticker renderer",
+      "status": "done",
+      "owner": "main",
+      "depends_on": [
+        "reporting-helper"
+      ]
+    },
+    {
+      "id": "heartbeat-path",
+      "title": "Wire ticker into timed status flow",
+      "status": "doing",
+      "owner": "main",
+      "depends_on": [
+        "timed-ticker"
       ]
     }
   ],

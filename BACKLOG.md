@@ -10,13 +10,14 @@ Status legend: `todo` | `doing` | `blocked` | `done`
 
 ## Next up
 
+- [doing] Add timed status reporting every 5 minutes regardless of milestone, optimized for minimal-token / maximum-information output (progress-bar style if practical)
+- [doing] Add heartbeat/progress helper with reporting levels
+- [todo] Add subagent dispatch/controller helper
+- [todo] Add resume bootstrap helper for running tasks after reset
 - [done] Define task complexity levels (0..N) and artifact-selection rules
 - [done] Add STATUS.md format and live project status updates
 - [done] Add DECISIONS.md for architectural/process choices
 - [done] Add memory reference file and MEMORY.md pointer rule
-- [todo] Add heartbeat/progress helper with reporting levels
-- [todo] Add subagent dispatch/controller helper
-- [todo] Add resume bootstrap helper for running tasks after reset
 
 ## Later
 
