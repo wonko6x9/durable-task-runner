@@ -1,0 +1,6 @@
+[2026-03-20T20:44:04Z] task created: Durable task runner bootstrap
+[2026-03-20T20:44:04Z] Bootstrapped live project task and created plan/backlog/status/decisions/config artifacts.
+[2026-03-20T20:44:36Z] Added separate durable-task-runner process-memory reference file and MEMORY.md pointer rule.
+[2026-03-20T20:44:36Z] Memory integration landed: bulk process-memory model now lives in a separate reference file, with MEMORY.md only carrying the standing pointer rule.
+[2026-03-20T20:45:19Z] Defined 0..N control levels and artifact-selection logic.
+[2026-03-20T20:45:19Z] Planning/backlog model landed: control levels 0..N are now defined so the runner can scale process to task complexity instead of using one blunt workflow.

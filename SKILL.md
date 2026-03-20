@@ -159,6 +159,7 @@ Use these helpers:
 Read these references when needed:
 - `references/task-schema.md` — durable task state/event structure
 - `references/subagent-return-protocol.md` — structured worker return format for orchestrated subagent workflows
+- `references/control-levels.md` — 0..N process/control levels and artifact-selection logic
 
 ## Attribution discipline
 
