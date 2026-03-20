@@ -17,7 +17,8 @@ Status legend: `todo` | `doing` | `blocked` | `done`
 - [doing] Tighten dropped-line checks and worker-result handling without bloating the controller
 - [doing] Connect thin controller helper to real subagent runs
 - [doing] Add resume bootstrap helper for running tasks after reset
-- [todo] Add bootstrap-driven resume recommendations for concrete controller actions
+- [done] Add bootstrap-driven resume recommendations for concrete controller actions
+- [todo] Add controller-ready resume plans from bootstrap output
 - [done] Define task complexity levels (0..N) and artifact-selection rules
 - [done] Add STATUS.md format and live project status updates
 - [done] Add DECISIONS.md for architectural/process choices

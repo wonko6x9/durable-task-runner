@@ -29,7 +29,7 @@ Milestone 7 — Subagent orchestration layer
 - dropped-line handling is now stricter: lines are classified as `active`, `attention`, `resolved`, or `dropped`
 - controller decisions are now explicit instead of implied, so autopilot/handoff lines do not silently disappear
 - a real spawned worker has now been dogfooded end-to-end through the return protocol and controller ingest path
-- `task_resume_bootstrap.py` now scans durable tasks after restart/reset, runs reconcile checks, classifies tasks, and emits explicit resume recommendations
+- `task_resume_bootstrap.py` now scans durable tasks after restart/reset, runs reconcile checks, classifies tasks, emits explicit resume recommendations, and can produce a controller-ready resume plan
 
 ## In-progress work
 

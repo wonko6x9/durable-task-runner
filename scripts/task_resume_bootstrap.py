@@ -7,6 +7,7 @@ Purpose:
 - classify which tasks are resumable, paused, stopped, completed, or need attention
 - run reconcile checks when configured and useful
 - emit a compact operator-facing summary with concrete resume recommendations
+- optionally emit a controller-ready resume plan
 
 Design bias:
 - explicit, inspectable, low-magic
@@ -172,13 +173,61 @@ def recommend_action(task: dict[str, Any], classification: str, reasons: list[st
     }
 
 
+def build_resume_plan(task: dict[str, Any], classification: str, recommendation: dict[str, Any], counts: dict[str, int]) -> dict[str, Any]:
+    next_step = task.get("next_step", "") or "n/a"
+    plan = {
+        "task_id": task["task_id"],
+        "classification": classification,
+        "action": recommendation["action"],
+        "next_step": next_step,
+        "steps": [],
+    }
+    if recommendation["action"] == "resume_active_line":
+        plan["steps"] = [
+            "load_task_snapshot",
+            "confirm_reconcile_clean",
+            "select_active_line",
+            "continue_controller_flow",
+        ]
+    elif recommendation["action"] == "resume_main_flow":
+        plan["steps"] = [
+            "load_task_snapshot",
+            "confirm_reconcile_clean",
+            "resume_main_execution",
+        ]
+    elif recommendation["action"] == "controller_decision_needed":
+        plan["steps"] = [
+            "load_task_snapshot",
+            "inspect_waiting_lines",
+            "record_controller_decision",
+            "resume_controller_flow",
+        ]
+    elif recommendation["action"] == "repair_orchestration_line":
+        plan["steps"] = [
+            "load_task_snapshot",
+            "repair_line_metadata",
+            "re-run_bootstrap_scan",
+        ]
+    elif recommendation["action"] == "reconcile_first":
+        plan["steps"] = [
+            "load_task_snapshot",
+            "resolve_pending_actions",
+            "re-run_reconcile",
+            "resume_if_clean",
+        ]
+    else:
+        plan["steps"] = ["manual_review"]
+    plan["line_counts"] = counts
+    return plan
+
+
 def run_reconcile(task_id: str, reason: str) -> dict[str, Any]:
     cmd = ["python3", str(SCRIPT_DIR / "task_reconcile.py"), task_id, "--reason", reason]
     out = subprocess.check_output(cmd, text=True)
     return json.loads(out)
 
 
-def inspect_task(path: Path, task: dict[str, Any], run_reconcile_checks: bool) -> dict[str, Any]:
+def inspect_task(path: Path, task: dict[str, Any], run_reconcile_checks: bool, include_plan: bool) -> dict[str, Any]:
     ts = now_iso()
     task_id = task["task_id"]
     reconcile_result = None
@@ -200,6 +249,8 @@ def inspect_task(path: Path, task: dict[str, Any], run_reconcile_checks: bool) -
         "line_counts": counts,
         "recommendation": recommendation,
     }
+    if include_plan:
+        summary["resume_plan"] = build_resume_plan(task, classification, recommendation, counts)
     if reconcile_result is not None:
         summary["reconcile"] = reconcile_result.get("reconcile", reconcile_result)
 
@@ -224,6 +275,7 @@ def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--task-id")
     p.add_argument("--no-reconcile", action="store_true")
+    p.add_argument("--plan", action="store_true")
     args = p.parse_args()
 
     targets = iter_tasks()
@@ -232,7 +284,7 @@ def main() -> int:
         if not targets:
             raise SystemExit(f"task not found: {args.task_id}")
 
-    summaries = [inspect_task(path, task, run_reconcile_checks=not args.no_reconcile) for path, task in targets]
+    summaries = [inspect_task(path, task, run_reconcile_checks=not args.no_reconcile, include_plan=args.plan) for path, task in targets]
     buckets = {
         "resumable": [],
         "needs_attention": [],

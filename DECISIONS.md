@@ -43,3 +43,8 @@
 - A restart helper that only labels tasks is informative but incomplete.
 - The bootstrap path should emit a concrete next action (`resume_active_line`, `controller_decision_needed`, `reconcile_first`, etc.) so the operator/controller knows what to do next.
 - Rationale: on restart, the system should reduce ambiguity, not just summarize it.
+
+### Decision: resume/bootstrap should emit a small action plan, not a giant workflow engine
+- After classification/recommendation, emit a short ordered plan (`steps[]`) that a controller can follow directly.
+- Keep the plan shallow and declarative; do not build a giant restart state machine unless real failures prove it is necessary.
+- Rationale: this creates an execution bridge without birthing a bureaucracy.

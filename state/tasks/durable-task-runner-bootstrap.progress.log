@@ -32,3 +32,5 @@
 [2026-03-20T23:23:43Z] Prototype focus shifted into resume/bootstrap.
 [2026-03-20T23:26:13Z] resume bootstrap scan: resumable — resume_active_line — desired_state=running
 [2026-03-20T23:26:49Z] Dogfooded resume/bootstrap again: helper now gives concrete next-action recommendations.
+[2026-03-20T23:37:52Z] resume bootstrap scan: resumable — resume_active_line — desired_state=running
+[2026-03-20T23:38:13Z] Resume/bootstrap improved: helper now emits a controller-ready action plan, not just recommendation text.
