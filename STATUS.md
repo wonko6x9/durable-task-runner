@@ -26,6 +26,8 @@ Milestone 5 — Progress + reporting control
 - end-to-end Telegram delivery smoke-tested from the bootstrap task
 - `task_subagent_ctl.py` added as the first thin controller helper
 - helper can assign a line, emit a worker brief, ingest a structured return, and run dropped-line checks
+- dropped-line handling is now stricter: lines are classified as `active`, `attention`, `resolved`, or `dropped`
+- controller decisions are now explicit instead of implied, so autopilot/handoff lines do not silently disappear
 
 ## In-progress work
 
@@ -35,8 +37,8 @@ Milestone 5 — Progress + reporting control
 
 ## Next step
 
-- tighten dropped-line checks and worker-result handling
-- connect the thin controller helper cleanly to actual subagent runs
+- connect the thin controller helper cleanly to real subagent runs
+- decide the smallest useful spawn/return glue layer
 - keep the orchestration model narrow unless real use proves more structure is necessary
 
 ## Blockers

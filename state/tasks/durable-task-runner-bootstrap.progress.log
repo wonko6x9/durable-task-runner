@@ -16,3 +16,8 @@
 [2026-03-20T22:45:27Z] ingested worker return for demo-line: done / complete -> main
 [2026-03-20T22:45:51Z] Subagent orchestration first cut landed: thin controller helper is working.
 [2026-03-20T22:45:51Z] Subagent milestone advanced; next is hardening the thin controller without bloating it.
+[2026-03-20T22:50:32Z] assigned line autopilot-line to worker at node n1
+[2026-03-20T22:50:32Z] ingested worker return for autopilot-line: autopilot / partial -> main (attention)
+[2026-03-20T22:50:33Z] controller decision for autopilot-line: dispatch (assigned -> worker)
+[2026-03-20T22:51:03Z] Subagent controller hardened: anti-drop logic now separates attention from actual dropped work.
+[2026-03-20T22:51:03Z] Next is real spawn/return glue, kept as thin as possible.

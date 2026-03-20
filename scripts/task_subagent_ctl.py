@@ -6,7 +6,8 @@ Attribution note:
 - Original to this repo, but influenced by ClawHub `subagent-orchestrator`
   for controller/worker separation, structured return headers, and anti-drop checks.
 - This implementation intentionally keeps the first cut narrow: assign lines,
-  generate worker briefs, ingest worker returns, and detect dropped lines.
+  generate worker briefs, ingest worker returns, detect dropped lines, and let
+  the controller explicitly resolve the next state.
 """
 
 from __future__ import annotations
@@ -23,6 +24,8 @@ ROOT = Path(__file__).resolve().parents[1]
 STATE_DIR = ROOT / "state" / "tasks"
 ALLOWED_TAGS = {"autopilot", "done", "idle", "blocked", "handoff", "need_user"}
 ALLOWED_GOAL_STATUS = {"partial", "complete", "waiting", "blocked"}
+ALLOWED_NEXT_ROLES = {"main", "verify", "research", "worker", "user", "none"}
+RESOLVED_STATUSES = {"done", "idle", "blocked", "need_user"}
 REQUIRED_HEADERS = ["tag", "task_id", "line", "node", "goal_status", "next_role"]
 
 
@@ -97,6 +100,61 @@ def parse_header_block(text: str) -> tuple[dict[str, str], str]:
     return headers, "\n".join(body_lines).strip()
 
 
+def line_record(line: dict[str, Any], name: str) -> dict[str, Any]:
+    return {
+        "line": name,
+        "status": line.get("status"),
+        "goal_status": line.get("goal_status"),
+        "next_role": line.get("next_role"),
+        "node": line.get("node"),
+        "owner": line.get("owner"),
+        "controller_decision": line.get("controller_decision", "pending"),
+        "last_return_tag": line.get("last_return_tag"),
+        "last_return_at": line.get("last_return_at"),
+    }
+
+
+def classify_line(line: dict[str, Any]) -> tuple[str, list[str]]:
+    reasons: list[str] = []
+    status = line.get("status")
+    goal_status = line.get("goal_status")
+    next_role = line.get("next_role")
+    controller_decision = line.get("controller_decision", "pending")
+
+    if status not in ALLOWED_TAGS and status != "assigned":
+        reasons.append(f"unknown status: {status}")
+    if goal_status and goal_status not in ALLOWED_GOAL_STATUS:
+        reasons.append(f"invalid goal_status: {goal_status}")
+    if next_role and next_role not in ALLOWED_NEXT_ROLES:
+        reasons.append(f"invalid next_role: {next_role}")
+
+    if status == "assigned":
+        return "active", reasons
+
+    if status == "autopilot":
+        if next_role in {None, "", "none"}:
+            reasons.append("autopilot line missing actionable next_role")
+            return "dropped", reasons
+        if controller_decision == "pending":
+            reasons.append("autopilot line awaiting controller follow-through")
+            return "attention", reasons
+        return "active", reasons
+
+    if status == "handoff":
+        if next_role in {None, "", "none"}:
+            reasons.append("handoff line missing next_role")
+            return "dropped", reasons
+        if controller_decision == "pending":
+            reasons.append("handoff line awaiting controller resolution")
+            return "attention", reasons
+        return "active", reasons
+
+    if status in RESOLVED_STATUSES:
+        return "resolved", reasons
+
+    return "attention", reasons
+
+
 def validate_return(task_id: str, text: str) -> dict[str, Any]:
     headers, body = parse_header_block(text)
     missing = [k for k in REQUIRED_HEADERS if not headers.get(k)]
@@ -108,6 +166,8 @@ def validate_return(task_id: str, text: str) -> dict[str, Any]:
         raise SystemExit(f"invalid tag: {headers['tag']}")
     if headers["goal_status"] not in ALLOWED_GOAL_STATUS:
         raise SystemExit(f"invalid goal_status: {headers['goal_status']}")
+    if headers["next_role"] not in ALLOWED_NEXT_ROLES:
+        raise SystemExit(f"invalid next_role: {headers['next_role']}")
     return {"headers": headers, "body": body}
 
 
@@ -131,6 +191,8 @@ def cmd_assign(args: argparse.Namespace) -> int:
         "last_return_at": None,
         "summary": args.summary or "",
         "artifacts": [],
+        "controller_decision": "pending",
+        "controller_note": "",
     })
     lines[args.line] = line
     task["updated_at"] = ts
@@ -216,9 +278,12 @@ def cmd_ingest(args: argparse.Namespace) -> int:
         "last_return_at": ts,
         "updated_at": ts,
         "last_body": parsed["body"],
+        "controller_decision": "pending",
+        "controller_note": "",
     })
     task["updated_at"] = ts
     write_task(task)
+    classification, reasons = classify_line(line)
     append_event(args.task_id, {
         "ts": ts,
         "type": "subagent_return_ingested",
@@ -231,10 +296,53 @@ def cmd_ingest(args: argparse.Namespace) -> int:
             "goal_status": headers["goal_status"],
             "next_role": headers["next_role"],
             "node": headers["node"],
+            "classification": classification,
+            "reasons": reasons,
         },
     })
-    append_progress(args.task_id, f"ingested worker return for {line_name}: {headers['tag']} / {headers['goal_status']} -> {headers['next_role']}")
-    print(json.dumps({"ok": True, "line": line_name, "headers": headers}, indent=2))
+    append_progress(args.task_id, f"ingested worker return for {line_name}: {headers['tag']} / {headers['goal_status']} -> {headers['next_role']} ({classification})")
+    print(json.dumps({
+        "ok": True,
+        "line": line_name,
+        "headers": headers,
+        "classification": classification,
+        "reasons": reasons,
+    }, indent=2))
+    return 0
+
+
+def cmd_decide(args: argparse.Namespace) -> int:
+    task = load_task(args.task_id)
+    artifact = ensure_orchestration_artifact(task)
+    line = artifact["lines"].get(args.line)
+    if not line:
+        raise SystemExit(f"line not found: {args.line}")
+    ts = now_iso()
+    line["controller_decision"] = args.decision
+    line["controller_note"] = args.note or ""
+    line["updated_at"] = ts
+    if args.next_role is not None:
+        line["next_role"] = args.next_role
+    if args.status is not None:
+        line["status"] = args.status
+    task["updated_at"] = ts
+    write_task(task)
+    append_event(args.task_id, {
+        "ts": ts,
+        "type": "controller_decision_recorded",
+        "task_id": args.task_id,
+        "phase": task.get("phase", ""),
+        "status": "ok",
+        "details": {
+            "line": args.line,
+            "decision": args.decision,
+            "note": args.note or "",
+            "next_role": line.get("next_role"),
+            "status_value": line.get("status"),
+        },
+    })
+    append_progress(args.task_id, f"controller decision for {args.line}: {args.decision} ({line.get('status')} -> {line.get('next_role')})")
+    print(json.dumps(line_record(line, args.line), indent=2))
     return 0
 
 
@@ -242,22 +350,29 @@ def cmd_check(args: argparse.Namespace) -> int:
     task = load_task(args.task_id)
     artifact = ensure_orchestration_artifact(task)
     dropped: list[dict[str, Any]] = []
-    ok: list[dict[str, Any]] = []
+    attention: list[dict[str, Any]] = []
+    active: list[dict[str, Any]] = []
+    resolved: list[dict[str, Any]] = []
     for name, line in sorted(artifact["lines"].items()):
-        record = {
-            "line": name,
-            "status": line.get("status"),
-            "goal_status": line.get("goal_status"),
-            "next_role": line.get("next_role"),
-            "node": line.get("node"),
-        }
-        if line.get("status") == "autopilot" and line.get("next_role") not in {"main", "worker", "verify", "user", "none"}:
+        record = line_record(line, name)
+        classification, reasons = classify_line(line)
+        if reasons:
+            record["reasons"] = reasons
+        if classification == "dropped":
             dropped.append(record)
-        elif line.get("status") == "autopilot" and not line.get("next_role"):
-            dropped.append(record)
+        elif classification == "attention":
+            attention.append(record)
+        elif classification == "resolved":
+            resolved.append(record)
         else:
-            ok.append(record)
-    result = {"ok": len(dropped) == 0, "dropped": dropped, "lines": ok}
+            active.append(record)
+    result = {
+        "ok": len(dropped) == 0,
+        "dropped": dropped,
+        "attention": attention,
+        "active": active,
+        "resolved": resolved,
+    }
     print(json.dumps(result, indent=2))
     return 0
 
@@ -284,6 +399,15 @@ def build_parser() -> argparse.ArgumentParser:
     ing.add_argument("task_id")
     ing.add_argument("--file")
     ing.set_defaults(func=cmd_ingest)
+
+    dec = sub.add_parser("decide")
+    dec.add_argument("task_id")
+    dec.add_argument("line")
+    dec.add_argument("decision", choices=["dispatch", "verify", "park", "wait_user", "complete", "blocked"])
+    dec.add_argument("--note")
+    dec.add_argument("--next-role", choices=sorted(ALLOWED_NEXT_ROLES))
+    dec.add_argument("--status", choices=sorted(ALLOWED_TAGS | {"assigned"}))
+    dec.set_defaults(func=cmd_decide)
 
     ck = sub.add_parser("check")
     ck.add_argument("task_id")

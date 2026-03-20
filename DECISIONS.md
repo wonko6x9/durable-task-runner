@@ -32,3 +32,9 @@
 - First implementation should only assign a line, generate a worker brief, ingest a structured return, and detect dropped lines.
 - Do not add scheduling boards, giant state machines, or rich branch choreography until a real task proves they are needed.
 - Rationale: the user wants simple UX and a robust backend, not ceremonial complexity.
+
+### Decision: anti-drop checks must distinguish attention from failure
+- Not every unfinished line is dropped; some lines are merely waiting for controller action.
+- Track at least four controller-facing states: `active`, `attention`, `resolved`, and `dropped`.
+- Require an explicit controller decision after `autopilot` or `handoff` returns instead of assuming the next move happened.
+- Rationale: a binary good/bad check is too dumb to be operationally trustworthy.
