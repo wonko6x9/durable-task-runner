@@ -30,3 +30,5 @@
 [2026-03-20T23:23:42Z] Milestone 7 complete: subagent orchestration is now real enough to use.
 [2026-03-20T23:23:43Z] Resume/bootstrap started: scan/classify/reconcile helper is working.
 [2026-03-20T23:23:43Z] Prototype focus shifted into resume/bootstrap.
+[2026-03-20T23:26:13Z] resume bootstrap scan: resumable — resume_active_line — desired_state=running
+[2026-03-20T23:26:49Z] Dogfooded resume/bootstrap again: helper now gives concrete next-action recommendations.

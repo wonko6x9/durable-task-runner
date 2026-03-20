@@ -38,3 +38,8 @@
 - Track at least four controller-facing states: `active`, `attention`, `resolved`, and `dropped`.
 - Require an explicit controller decision after `autopilot` or `handoff` returns instead of assuming the next move happened.
 - Rationale: a binary good/bad check is too dumb to be operationally trustworthy.
+
+### Decision: resume/bootstrap should recommend, not just classify
+- A restart helper that only labels tasks is informative but incomplete.
+- The bootstrap path should emit a concrete next action (`resume_active_line`, `controller_decision_needed`, `reconcile_first`, etc.) so the operator/controller knows what to do next.
+- Rationale: on restart, the system should reduce ambiguity, not just summarize it.

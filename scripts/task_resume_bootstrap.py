@@ -6,7 +6,7 @@ Purpose:
 - inspect durable tasks after reset/restart/startup
 - classify which tasks are resumable, paused, stopped, completed, or need attention
 - run reconcile checks when configured and useful
-- emit a compact operator-facing summary without pretending to auto-resume everything blindly
+- emit a compact operator-facing summary with concrete resume recommendations
 
 Design bias:
 - explicit, inspectable, low-magic
@@ -37,10 +37,6 @@ def load_json(path: Path, default: Any = None) -> Any:
     return json.loads(path.read_text())
 
 
-def save_json(path: Path, data: Any) -> None:
-    path.write_text(json.dumps(data, indent=2) + "\n")
-
-
 def iter_tasks() -> list[tuple[Path, dict[str, Any]]]:
     rows: list[tuple[Path, dict[str, Any]]] = []
     for path in sorted(STATE_DIR.glob("*.json")):
@@ -67,14 +63,18 @@ def append_progress(task_id: str, line: str) -> None:
         f.write(f"[{now_iso()}] {line}\n")
 
 
-def classify_task(task: dict[str, Any]) -> tuple[str, list[str]]:
+def classify_task(task: dict[str, Any]) -> tuple[str, list[str], dict[str, int]]:
     reasons: list[str] = []
     desired_state = task.get("desired_state")
     reconcile = task.get("reconcile", {}) or {}
     artifacts = task.get("artifacts", []) or []
 
-    attention_lines = 0
-    dropped_lines = 0
+    counts = {
+        "attention_lines": 0,
+        "dropped_lines": 0,
+        "resolved_lines": 0,
+        "active_lines": 0,
+    }
     for item in artifacts:
         if not isinstance(item, dict) or item.get("kind") != "subagent_lines":
             continue
@@ -82,37 +82,94 @@ def classify_task(task: dict[str, Any]) -> tuple[str, list[str]]:
             status = line.get("status")
             next_role = line.get("next_role")
             controller_decision = line.get("controller_decision", "pending")
+            if status in {"done", "idle", "blocked", "need_user"}:
+                counts["resolved_lines"] += 1
+            elif status == "assigned":
+                counts["active_lines"] += 1
             if status in {"autopilot", "handoff"} and controller_decision == "pending":
-                attention_lines += 1
+                counts["attention_lines"] += 1
             if status in {"autopilot", "handoff"} and next_role in {None, "", "none"}:
-                dropped_lines += 1
+                counts["dropped_lines"] += 1
 
-    if dropped_lines:
-        reasons.append(f"{dropped_lines} dropped orchestration line(s)")
-        return "needs_attention", reasons
+    if counts["dropped_lines"]:
+        reasons.append(f"{counts['dropped_lines']} dropped orchestration line(s)")
+        return "needs_attention", reasons, counts
     if reconcile.get("needed"):
         reasons.append("reconcile still needed")
-        return "needs_attention", reasons
-    if attention_lines:
-        reasons.append(f"{attention_lines} orchestration line(s) awaiting controller action")
-        return "needs_attention", reasons
+        return "needs_attention", reasons, counts
+    if counts["attention_lines"]:
+        reasons.append(f"{counts['attention_lines']} orchestration line(s) awaiting controller action")
+        return "needs_attention", reasons, counts
     if desired_state == "running":
         reasons.append("desired_state=running")
-        return "resumable", reasons
+        return "resumable", reasons, counts
     if desired_state == "paused":
         reasons.append("desired_state=paused")
-        return "paused", reasons
+        return "paused", reasons, counts
     if desired_state == "stopped":
         reasons.append("desired_state=stopped")
-        return "stopped", reasons
+        return "stopped", reasons, counts
     if desired_state == "completed":
         reasons.append("desired_state=completed")
-        return "completed", reasons
+        return "completed", reasons, counts
     if desired_state == "failed":
         reasons.append("desired_state=failed")
-        return "failed", reasons
+        return "failed", reasons, counts
     reasons.append(f"unrecognized desired_state={desired_state}")
-    return "needs_attention", reasons
+    return "needs_attention", reasons, counts
+
+
+def recommend_action(task: dict[str, Any], classification: str, reasons: list[str], counts: dict[str, int]) -> dict[str, Any]:
+    next_step = task.get("next_step", "") or "n/a"
+    if classification == "resumable":
+        if counts["active_lines"] > 0:
+            return {
+                "action": "resume_active_line",
+                "summary": f"Resume the task and continue the active line(s); next step: {next_step}",
+            }
+        return {
+            "action": "resume_main_flow",
+            "summary": f"Resume the main task flow; next step: {next_step}",
+        }
+    if classification == "needs_attention":
+        if counts["dropped_lines"] > 0:
+            return {
+                "action": "repair_orchestration_line",
+                "summary": "Repair dropped orchestration line metadata before resuming execution.",
+            }
+        if counts["attention_lines"] > 0:
+            return {
+                "action": "controller_decision_needed",
+                "summary": "Record an explicit controller decision for waiting autopilot/handoff line(s), then resume.",
+            }
+        return {
+            "action": "reconcile_first",
+            "summary": "Resolve reconcile/pending-action issues before resuming execution.",
+        }
+    if classification == "paused":
+        return {
+            "action": "stay_paused",
+            "summary": "Task is intentionally paused; resume only if desired_state changes back to running.",
+        }
+    if classification == "stopped":
+        return {
+            "action": "stay_stopped",
+            "summary": "Task is intentionally stopped; do not resume without an explicit new start decision.",
+        }
+    if classification == "completed":
+        return {
+            "action": "none",
+            "summary": "Task is complete; no resume action needed.",
+        }
+    if classification == "failed":
+        return {
+            "action": "manual_recovery",
+            "summary": "Task is failed; inspect failure details and create a recovery plan before resuming.",
+        }
+    return {
+        "action": "manual_review",
+        "summary": f"Manual review needed: {'; '.join(reasons) if reasons else 'unclear state'}",
+    }
 
 
 def run_reconcile(task_id: str, reason: str) -> dict[str, Any]:
@@ -129,7 +186,8 @@ def inspect_task(path: Path, task: dict[str, Any], run_reconcile_checks: bool) -
         reconcile_result = run_reconcile(task_id, "resume_bootstrap_scan")
         task = load_json(path, task)
 
-    classification, reasons = classify_task(task)
+    classification, reasons, counts = classify_task(task)
+    recommendation = recommend_action(task, classification, reasons, counts)
     summary = {
         "task_id": task_id,
         "title": task.get("title", task_id),
@@ -139,6 +197,8 @@ def inspect_task(path: Path, task: dict[str, Any], run_reconcile_checks: bool) -
         "next_step": task.get("next_step", ""),
         "classification": classification,
         "reasons": reasons,
+        "line_counts": counts,
+        "recommendation": recommendation,
     }
     if reconcile_result is not None:
         summary["reconcile"] = reconcile_result.get("reconcile", reconcile_result)
@@ -152,9 +212,11 @@ def inspect_task(path: Path, task: dict[str, Any], run_reconcile_checks: bool) -
         "details": {
             "reasons": reasons,
             "next_step": task.get("next_step", ""),
+            "recommendation": recommendation,
+            "line_counts": counts,
         },
     })
-    append_progress(task_id, f"resume bootstrap scan: {classification} — {'; '.join(reasons)}")
+    append_progress(task_id, f"resume bootstrap scan: {classification} — {recommendation['action']} — {'; '.join(reasons)}")
     return summary
 
 
@@ -166,7 +228,7 @@ def main() -> int:
 
     targets = iter_tasks()
     if args.task_id:
-        targets = [(p, t) for p, t in targets if t.get("task_id") == args.task_id]
+        targets = [(path, task) for path, task in targets if task.get("task_id") == args.task_id]
         if not targets:
             raise SystemExit(f"task not found: {args.task_id}")
 

@@ -10,11 +10,11 @@ healthy
 
 ## Current milestone
 
-Milestone 7 — Subagent orchestration layer
+Milestone 8 — Resume / restart bootstrap
 
 ## Last completed milestone
 
-Milestone 5 — Progress + reporting control
+Milestone 7 — Subagent orchestration layer
 
 ## Last checkpoint
 
@@ -29,24 +29,19 @@ Milestone 5 — Progress + reporting control
 - dropped-line handling is now stricter: lines are classified as `active`, `attention`, `resolved`, or `dropped`
 - controller decisions are now explicit instead of implied, so autopilot/handoff lines do not silently disappear
 - a real spawned worker has now been dogfooded end-to-end through the return protocol and controller ingest path
+- `task_resume_bootstrap.py` now scans durable tasks after restart/reset, runs reconcile checks, classifies tasks, and emits explicit resume recommendations
 
 ## In-progress work
 
-- subagent orchestration is now in thin-helper hardening mode
-- resume/bootstrap is now started with a real scan/classify/reconcile helper
+- resume/bootstrap is now active with a real scan/classify/recommend helper
 - preserving simple UX while adding just enough controller discipline to avoid dropped work
-- backlog updated with a reporting enhancement: separate progress bars for current task progress and full project status
+- backlog still includes the reporting enhancement: separate progress bars for current task progress and full project status
 
 ## Next step
 
-- advance the bootstrap helper from scan/classify into clearer resume recommendations
+- push bootstrap helper from recommendation into a clearer controller-ready resume flow
 - finish the standard spawn path handoff for the thin controller
 - keep the orchestration model narrow unless real use proves more structure is necessary
-
-## Blockers
-
-- none currently
-is necessary
 
 ## Blockers
 

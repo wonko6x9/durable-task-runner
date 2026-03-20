@@ -18,11 +18,11 @@
   "phase": "resume-bootstrap",
   "health": "healthy",
   "created_at": "2026-03-20T20:44:04Z",
-  "updated_at": "2026-03-20T23:23:43Z",
+  "updated_at": "2026-03-20T23:26:13Z",
   "status_update_interval_seconds": 300,
   "last_status_update_at": "2026-03-20T22:40:01Z",
   "last_verified_step": "",
-  "next_step": "advance bootstrap helper from scan/classify into explicit resume recommendations",
+  "next_step": "push bootstrap helper from recommendation into controller-ready resume flow",
   "operator_note": "",
   "steering_note": "",
   "milestones": [
@@ -72,7 +72,7 @@
       "id": "m8",
       "title": "Resume / restart bootstrap",
       "status": "running",
-      "percent": 20
+      "percent": 32
     },
     {
       "id": "m9",
@@ -225,7 +225,7 @@
   "reconcile": {
     "needed": false,
     "reason": "resume_bootstrap_scan",
-    "last_run_at": "2026-03-20T23:23:17Z",
+    "last_run_at": "2026-03-20T23:26:13Z",
     "status": "clean"
   }
 }
