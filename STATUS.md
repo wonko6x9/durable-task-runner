@@ -33,14 +33,20 @@ Milestone 5 — Progress + reporting control
 ## In-progress work
 
 - subagent orchestration is now in thin-helper hardening mode
+- resume/bootstrap is now started with a real scan/classify/reconcile helper
 - preserving simple UX while adding just enough controller discipline to avoid dropped work
 - backlog updated with a reporting enhancement: separate progress bars for current task progress and full project status
 
 ## Next step
 
-- connect the thin controller helper cleanly to real subagent runs
-- decide the smallest useful spawn/return glue layer
+- advance the bootstrap helper from scan/classify into clearer resume recommendations
+- finish the standard spawn path handoff for the thin controller
 - keep the orchestration model narrow unless real use proves more structure is necessary
+
+## Blockers
+
+- none currently
+is necessary
 
 ## Blockers
 

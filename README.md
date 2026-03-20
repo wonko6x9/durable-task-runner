@@ -7,6 +7,7 @@ Current contents:
 - Reference schema: `references/task-schema.md`
 - Control helper: `scripts/task_ctl.py`
 - Subagent/controller helper: `scripts/task_subagent_ctl.py`
+- Resume/bootstrap helper: `scripts/task_resume_bootstrap.py`
 - Source provenance: `ATTRIBUTION.md`
 
 Purpose:

@@ -16,7 +16,7 @@ Status legend: `todo` | `doing` | `blocked` | `done`
 - [doing] Add subagent dispatch/controller helper
 - [doing] Tighten dropped-line checks and worker-result handling without bloating the controller
 - [doing] Connect thin controller helper to real subagent runs
-- [todo] Add resume bootstrap helper for running tasks after reset
+- [doing] Add resume bootstrap helper for running tasks after reset
 - [done] Define task complexity levels (0..N) and artifact-selection rules
 - [done] Add STATUS.md format and live project status updates
 - [done] Add DECISIONS.md for architectural/process choices

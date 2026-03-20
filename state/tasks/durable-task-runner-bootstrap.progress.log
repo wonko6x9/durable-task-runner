@@ -26,3 +26,7 @@
 [2026-03-20T22:55:49Z] Real worker dogfood passed: spawn, return, and ingest all work in the thin orchestration path.
 [2026-03-20T22:59:49Z] prepared spawn payload for line payload-line (worker @ payload-test)
 [2026-03-20T22:59:49Z] Spawn glue got thinner: prepared payload helper now emits a reusable sessions_spawn shape from durable task state.
+[2026-03-20T23:23:17Z] resume bootstrap scan: resumable — desired_state=running
+[2026-03-20T23:23:42Z] Milestone 7 complete: subagent orchestration is now real enough to use.
+[2026-03-20T23:23:43Z] Resume/bootstrap started: scan/classify/reconcile helper is working.
+[2026-03-20T23:23:43Z] Prototype focus shifted into resume/bootstrap.
