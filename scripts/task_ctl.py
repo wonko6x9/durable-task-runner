@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[1]
 STATE_DIR = ROOT / "state" / "tasks"
 
 
@@ -100,6 +100,10 @@ def cmd_create(args: argparse.Namespace) -> int:
         "subtasks": parse_json_arg(args.subtasks, []),
         "artifacts": parse_json_arg(args.artifacts, []),
         "risk_notes": parse_json_arg(args.risk_notes, []),
+        "pending_actions": parse_json_arg(args.pending_actions, []),
+        "action_states": parse_json_arg(args.action_states, {}),
+        "idempotency_ledger": parse_json_arg(args.idempotency_ledger, {}),
+        "reconcile": parse_json_arg(args.reconcile, {"needed": False, "reason": "", "last_run_at": None, "status": "idle"}),
     }
     write_snapshot(data)
     append_event(args.task_id, {
@@ -152,7 +156,7 @@ def cmd_update(args: argparse.Namespace) -> int:
         val = getattr(args, field)
         if val is not None:
             data[field] = val
-    for field in ["done_criteria", "constraints", "milestones", "subtasks", "artifacts", "risk_notes"]:
+    for field in ["done_criteria", "constraints", "milestones", "subtasks", "artifacts", "risk_notes", "pending_actions", "action_states", "idempotency_ledger", "reconcile"]:
         raw = getattr(args, field)
         if raw is not None:
             data[field] = json.loads(raw)
@@ -284,6 +288,10 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("--subtasks")
     c.add_argument("--artifacts")
     c.add_argument("--risk-notes")
+    c.add_argument("--pending-actions")
+    c.add_argument("--action-states")
+    c.add_argument("--idempotency-ledger")
+    c.add_argument("--reconcile")
     c.add_argument("--force", action="store_true")
     c.set_defaults(func=cmd_create)
 
@@ -298,7 +306,8 @@ def build_parser() -> argparse.ArgumentParser:
     u.add_argument("task_id")
     for field in ["title", "goal", "desired_state", "execution_priority", "phase", "health",
                   "next_step", "operator_note", "steering_note", "last_verified_step",
-                  "done_criteria", "constraints", "milestones", "subtasks", "artifacts", "risk_notes"]:
+                  "done_criteria", "constraints", "milestones", "subtasks", "artifacts", "risk_notes",
+                  "pending_actions", "action_states", "idempotency_ledger", "reconcile"]:
         u.add_argument(f"--{field.replace('_','-')}")
     u.add_argument("--status-interval", type=int)
     u.add_argument("--progress-note")

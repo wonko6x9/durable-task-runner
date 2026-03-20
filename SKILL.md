@@ -156,7 +156,9 @@ Use these helpers:
 - `scripts/task_ctl.py` — create/update/log/control durable tasks
 - `scripts/task_resume_queue.py` — interruption queue helper for resume-after-context-switch behavior
 
-Read `references/task-schema.md` if you need the exact state/event structure.
+Read these references when needed:
+- `references/task-schema.md` — durable task state/event structure
+- `references/subagent-return-protocol.md` — structured worker return format for orchestrated subagent workflows
 
 ## Attribution discipline
 

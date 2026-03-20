@@ -69,9 +69,31 @@ Attribution note:
     }
   ],
   "artifacts": [],
-  "risk_notes": []
+  "risk_notes": [],
+  "pending_actions": [],
+  "action_states": {},
+  "idempotency_ledger": {},
+  "reconcile": {
+    "needed": false,
+    "reason": "",
+    "last_run_at": null,
+    "status": "idle"
+  }
 }
 ```
+
+### New durable fields
+
+These fields are influenced by ClawHub `restart-safe-workflow` ideas and are intended to support stricter resume/reconcile behavior:
+
+- `pending_actions[]`
+  - actions queued but not yet fully processed
+- `action_states{}`
+  - per-action state, attempts, and result metadata
+- `idempotency_ledger{}`
+  - records already-applied action keys so resume logic can avoid duplicate side effects
+- `reconcile`
+  - explicit repair/recheck state after interruption, partial failure, or ambiguous completion
 
 ## Event schema
 
