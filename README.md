@@ -18,6 +18,7 @@ This repo is the development/workbench version of the skill. It includes dogfood
 ### Public skill surface
 These are the files that matter for the published skill:
 - `SKILL.md`
+- `LICENSE`
 - `ATTRIBUTION.md`
 - `config/defaults.json`
 - `references/`
@@ -32,6 +33,12 @@ These are useful in the repo, but should not be shoved directly into a ClawHub p
 - `RESET-READY.md`
 - `RELEASE.md`
 
+## Runtime requirements
+
+- Python 3.8+
+- no external Python dependencies; the scripts are stdlib-only
+- OpenClaw runtime/auth is required only for live message delivery paths
+
 ## Local development checks
 
 ```bash
@@ -39,6 +46,11 @@ python3 scripts/task_validation_smoke.py
 python3 scripts/task_core_smoke.py
 python3 scripts/task_tick_all.py
 ```
+
+What they validate:
+- `task_validation_smoke.py` — restart/bootstrap/apply flow on a throwaway non-bootstrap durable task
+- `task_core_smoke.py` — create/update/report/ticker/subagent/restart helper coverage
+- `task_tick_all.py` — recurring due-scan behavior across running tasks with delivery bindings
 
 ## Prepare a clean ClawHub bundle
 
@@ -87,16 +99,6 @@ Recommended first public release posture:
 
 ## Provenance
 
-This project is original glue code and workflow design, but it openly credits the ClawHub skills that influenced parts of the model. See `ATTRIBUTION.md`.
-hen a task has a delivery binding.
-
-## ClawHub publish shape
-
-Recommended first public release posture:
-- version: `0.1.0`
-- tone: working early release, not fake-1.0 triumphalism
-- publish input: `dist/durable-task-runner`
-
-## Provenance
+This project was developed with iterative OpenClaw/LLM assistance and critically reviewed during hardening, including Claude review passes. Final code selection, testing, integration, and publication decisions were curated by John Watson.
 
 This project is original glue code and workflow design, but it openly credits the ClawHub skills that influenced parts of the model. See `ATTRIBUTION.md`.
