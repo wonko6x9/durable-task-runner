@@ -29,7 +29,7 @@ Status legend: `todo` | `doing` | `blocked` | `done`
 
 ## Later
 
-- [todo] Add tests or repeatable smoke scripts for core helpers
+- [todo] Add tests or more repeatable smoke coverage for core helpers where real usage shows value
 - [todo] Dogfood the runner on a separate real-world long task
 - [todo] Mirror to GitHub after working prototype is proven
 

@@ -1,0 +1,5 @@
+[2026-03-21T00:33:42Z] task created: Validation smoke flow
+[2026-03-21T00:33:42Z] assigned line validate-line to worker at node validation-node
+[2026-03-21T00:33:42Z] ingested worker return for validate-line: autopilot / partial -> worker (attention)
+[2026-03-21T00:33:42Z] resume bootstrap scan: needs_attention — controller_decision_needed — 1 orchestration line(s) awaiting controller action
+[2026-03-21T00:33:42Z] resume apply: auto-dispatched resumed line validate-line

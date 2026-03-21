@@ -2,7 +2,7 @@
 
 ## Current phase
 
-Self-bootstrap / dogfood lane
+Prototype complete / verification closed
 
 ## Health
 
