@@ -27,6 +27,7 @@ INCLUDE = [
     "references/task-schema.md",
     "scripts/task_core_smoke.py",
     "scripts/task_ctl.py",
+    "scripts/task_maybe_send_now.py",
     "scripts/task_reconcile.py",
     "scripts/task_report.py",
     "scripts/task_resume_apply.py",
@@ -78,4 +79,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-in())
