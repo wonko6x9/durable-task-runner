@@ -31,6 +31,7 @@ Milestone 7 — Subagent orchestration layer
 - a real spawned worker has now been dogfooded end-to-end through the return protocol and controller ingest path
 - `task_resume_bootstrap.py` now scans durable tasks after restart/reset, runs reconcile checks, classifies tasks, emits explicit resume recommendations, and can produce a controller-ready resume plan
 - `task_resume_apply.py` now consumes bootstrap output and applies low-risk resume follow-through for resumable tasks so reporting does not automatically become a stop signal
+- resume/apply flow now also handles the low-risk `controller_decision_needed` case by auto-dispatching straightforward waiting lines
 
 ## In-progress work
 

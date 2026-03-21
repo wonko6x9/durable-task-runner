@@ -51,5 +51,6 @@
 
 ### Decision: bootstrap should apply obvious low-risk resume actions automatically
 - If restart analysis says the task is cleanly resumable, the controller should be able to apply the low-risk follow-through immediately instead of reporting and stalling.
-- Keep the auto-apply surface narrow: resumable main flow / resumable active line first; leave ambiguous or higher-risk cases as controller/operator decisions.
+- Keep the auto-apply surface narrow: resumable main flow / resumable active line first; then straightforward `controller_decision_needed` cases where the next role is already explicit and low-risk.
+- Leave ambiguous or higher-risk cases as controller/operator decisions.
 - Rationale: the whole point of a durable runner is to keep moving unless there is a good reason not to.

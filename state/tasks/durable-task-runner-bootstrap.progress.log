@@ -37,3 +37,8 @@
 [2026-03-20T23:46:10Z] resume bootstrap scan: resumable — resume_active_line — desired_state=running
 [2026-03-20T23:46:10Z] resume apply: controller resumed active line autopilot-line
 [2026-03-20T23:46:34Z] Resume/bootstrap now applies low-risk follow-through automatically for clean resumable tasks.
+[2026-03-21T00:07:58Z] resume bootstrap scan: needs_attention — controller_decision_needed — 1 orchestration line(s) awaiting controller action
+[2026-03-21T00:07:58Z] resume apply: auto-dispatched resumed line autopilot-line
+[2026-03-21T00:08:23Z] Milestone 8 complete: restart path can report and keep moving in low-risk cases.
+[2026-03-21T00:08:23Z] Validation lane started: resume/apply also handles straightforward controller-decision cases.
+[2026-03-21T00:08:23Z] Shifted from resume/bootstrap implementation into prototype validation.

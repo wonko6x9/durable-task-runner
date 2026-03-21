@@ -10,7 +10,7 @@ Purpose:
 Current scope:
 - consumes the bootstrap helper JSON output (`--plan` recommended)
 - updates task state/progress for resumable tasks
-- records a resume_started event with the chosen action
+- records controller/resume events for low-risk follow-through
 - does NOT try to execute arbitrary worker logic or invent new branching
 """
 
@@ -53,14 +53,96 @@ def append_progress(task_id: str, line: str) -> None:
         f.write(f"[{now_iso()}] {line}\n")
 
 
-def pick_active_line(task: dict[str, Any]) -> str | None:
+def iter_lines(task: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    rows: list[tuple[str, dict[str, Any]]] = []
     for item in task.get("artifacts", []):
         if not isinstance(item, dict) or item.get("kind") != "subagent_lines":
             continue
         for name, line in (item.get("lines", {}) or {}).items():
-            if line.get("status") == "assigned":
-                return name
+            rows.append((name, line))
+    return rows
+
+
+def pick_active_line(task: dict[str, Any]) -> str | None:
+    for name, line in iter_lines(task):
+        if line.get("status") == "assigned":
+            return name
     return None
+
+
+def pick_waiting_controller_line(task: dict[str, Any]) -> tuple[str, dict[str, Any]] | None:
+    for name, line in iter_lines(task):
+        if line.get("status") in {"autopilot", "handoff"} and line.get("controller_decision", "pending") == "pending":
+            return name, line
+    return None
+
+
+def apply_resume_flow(task: dict[str, Any], task_id: str, ts: str, action: str, applied: dict[str, Any]) -> dict[str, Any]:
+    next_step = task.get("next_step", "")
+    task["desired_state"] = "running"
+    task["phase"] = task.get("phase", "resume-bootstrap")
+    task["updated_at"] = ts
+    active_line = pick_active_line(task)
+    if action == "resume_active_line" and active_line:
+        task["next_step"] = f"continue active line: {active_line}"
+        applied["note"] = f"controller resumed active line {active_line}"
+    else:
+        task["next_step"] = next_step or "resume main execution"
+        applied["note"] = "controller resumed main flow"
+    save_task(task)
+    append_event(task_id, {
+        "ts": ts,
+        "type": "resume_started",
+        "task_id": task_id,
+        "phase": task.get("phase", ""),
+        "status": "ok",
+        "details": {
+            "action": action,
+            "note": applied["note"],
+        },
+    })
+    append_progress(task_id, f"resume apply: {applied['note']}")
+    applied["applied"] = True
+    return applied
+
+
+def apply_controller_decision(task: dict[str, Any], task_id: str, ts: str, applied: dict[str, Any]) -> dict[str, Any]:
+    picked = pick_waiting_controller_line(task)
+    if not picked:
+        applied["note"] = "no waiting controller line found"
+        return applied
+    name, line = picked
+    next_role = line.get("next_role")
+    if next_role in {None, "", "none", "main"}:
+        applied["note"] = f"waiting line {name} is not low-risk auto-dispatchable"
+        return applied
+
+    line["controller_decision"] = "dispatch"
+    line["controller_note"] = "auto-applied during resume bootstrap"
+    line["status"] = "assigned"
+    line["updated_at"] = ts
+    task["desired_state"] = "running"
+    task["updated_at"] = ts
+    task["next_step"] = f"continue resumed line: {name}"
+    save_task(task)
+    append_event(task_id, {
+        "ts": ts,
+        "type": "controller_decision_recorded",
+        "task_id": task_id,
+        "phase": task.get("phase", ""),
+        "status": "ok",
+        "details": {
+            "line": name,
+            "decision": "dispatch",
+            "note": "auto-applied during resume bootstrap",
+            "next_role": line.get("next_role"),
+            "status_value": line.get("status"),
+        },
+    })
+    append_progress(task_id, f"resume apply: auto-dispatched resumed line {name}")
+    applied["applied"] = True
+    applied["note"] = f"auto-dispatched waiting line {name}"
+    return applied
 
 
 def apply_task(plan_item: dict[str, Any]) -> dict[str, Any]:
@@ -68,7 +150,6 @@ def apply_task(plan_item: dict[str, Any]) -> dict[str, Any]:
     task = load_task(task_id)
     ts = now_iso()
     action = plan_item.get("resume_plan", {}).get("action") or plan_item.get("recommendation", {}).get("action")
-    next_step = task.get("next_step", "")
     applied = {
         "task_id": task_id,
         "action": action,
@@ -77,31 +158,10 @@ def apply_task(plan_item: dict[str, Any]) -> dict[str, Any]:
     }
 
     if action in {"resume_active_line", "resume_main_flow"}:
-        task["desired_state"] = "running"
-        task["phase"] = task.get("phase", "resume-bootstrap")
-        task["updated_at"] = ts
-        active_line = pick_active_line(task)
-        if action == "resume_active_line" and active_line:
-            task["next_step"] = f"continue active line: {active_line}"
-            applied["note"] = f"controller resumed active line {active_line}"
-        else:
-            task["next_step"] = next_step or "resume main execution"
-            applied["note"] = "controller resumed main flow"
-        save_task(task)
-        append_event(task_id, {
-            "ts": ts,
-            "type": "resume_started",
-            "task_id": task_id,
-            "phase": task.get("phase", ""),
-            "status": "ok",
-            "details": {
-                "action": action,
-                "note": applied["note"],
-            },
-        })
-        append_progress(task_id, f"resume apply: {applied['note']}")
-        applied["applied"] = True
-        return applied
+        return apply_resume_flow(task, task_id, ts, action, applied)
+
+    if action == "controller_decision_needed":
+        return apply_controller_decision(task, task_id, ts, applied)
 
     applied["note"] = "no low-risk auto-apply path for this action"
     return applied

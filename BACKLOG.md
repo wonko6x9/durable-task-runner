@@ -19,7 +19,8 @@ Status legend: `todo` | `doing` | `blocked` | `done`
 - [doing] Add resume bootstrap helper for running tasks after reset
 - [done] Add bootstrap-driven resume recommendations for concrete controller actions
 - [done] Add controller-ready resume plans from bootstrap output
-- [todo] Add low-risk controller resume-apply path from bootstrap output
+- [done] Add low-risk controller resume-apply path from bootstrap output
+- [todo] Validate resume/apply flow on a non-bootstrap durable task
 - [done] Define task complexity levels (0..N) and artifact-selection rules
 - [done] Add STATUS.md format and live project status updates
 - [done] Add DECISIONS.md for architectural/process choices

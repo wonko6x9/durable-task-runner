@@ -15,14 +15,14 @@
   ],
   "desired_state": "running",
   "execution_priority": "tokens",
-  "phase": "resume-bootstrap",
+  "phase": "prototype-validation",
   "health": "healthy",
   "created_at": "2026-03-20T20:44:04Z",
-  "updated_at": "2026-03-20T23:46:10Z",
+  "updated_at": "2026-03-21T00:08:23Z",
   "status_update_interval_seconds": 300,
   "last_status_update_at": "2026-03-20T22:40:01Z",
   "last_verified_step": "",
-  "next_step": "expand resume apply path carefully beyond the simplest resumable cases",
+  "next_step": "start non-bootstrap validation task and exercise resume/apply flow there",
   "operator_note": "",
   "steering_note": "",
   "milestones": [
@@ -71,14 +71,14 @@
     {
       "id": "m8",
       "title": "Resume / restart bootstrap",
-      "status": "running",
-      "percent": 62
+      "status": "done",
+      "percent": 100
     },
     {
       "id": "m9",
       "title": "Prototype validation",
-      "status": "pending",
-      "percent": 0
+      "status": "running",
+      "percent": 15
     }
   ],
   "subtasks": [
@@ -173,13 +173,13 @@
           "goal_status": "partial",
           "next_role": "worker",
           "assigned_at": "2026-03-20T22:50:32Z",
-          "updated_at": "2026-03-20T22:50:33Z",
+          "updated_at": "2026-03-21T00:07:58Z",
           "last_return_tag": "autopilot",
           "last_return_at": "2026-03-20T22:50:32Z",
           "summary": "Exercise attention-state handling.",
           "artifacts": [],
           "controller_decision": "dispatch",
-          "controller_note": "Continue to next node",
+          "controller_note": "auto-applied during resume bootstrap",
           "last_body": "Goal\n- Simulate a worker asking for next dispatch\n\nCompleted\n- Did one bounded slice\n\nChanged artifacts/files\n- none\n\nCurrent status\n- Ready for the controller to pick the next node\n\nNext step\n- Controller dispatches next node or parks line\n\nRisk\n- none"
         },
         "real-worker-line": {
@@ -225,7 +225,7 @@
   "reconcile": {
     "needed": false,
     "reason": "resume_bootstrap_scan",
-    "last_run_at": "2026-03-20T23:46:10Z",
+    "last_run_at": "2026-03-21T00:07:58Z",
     "status": "clean"
   }
 }
