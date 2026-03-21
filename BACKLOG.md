@@ -42,3 +42,9 @@ New work discovered during execution can be added here without pretending the or
 - [done] Add a deterministic clean-bundle export path for publishing
 - [done] Verify the clean publish bundle in isolation, not just from the dev repo
 - [done] Add explicit license/provenance/runtime notes for public preview readiness
+
+## Post-0.1.0 / 0.1.1 candidate
+
+- [doing] Add explicit safe delivery modes (`stdout`, `noop`, `log-only`) alongside live OpenClaw delivery
+- [doing] Add targeted delivery-path smoke coverage, including immediate-send behavior and no-binding/no-loop checks
+- [doing] Add a concrete scheduler/setup helper for recurring `task_tick_all.py` operation

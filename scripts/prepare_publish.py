@@ -28,6 +28,8 @@ INCLUDE = [
     "references/task-schema.md",
     "scripts/task_core_smoke.py",
     "scripts/task_ctl.py",
+    "scripts/task_delivery_smoke.py",
+    "scripts/task_install_tick_cron.sh",
     "scripts/task_maybe_send_now.py",
     "scripts/task_reconcile.py",
     "scripts/task_report.py",

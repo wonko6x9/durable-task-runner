@@ -112,6 +112,19 @@ python3 scripts/task_tick_all.py
 That is the operational runner that scans all running tasks with delivery bindings and sends due status messages.
 Immediate breadcrumbs are emitted automatically on meaningful task transitions when a task has a delivery binding.
 
+Delivery bindings now support safer explicit modes:
+- `openclaw` — live message delivery through OpenClaw
+- `stdout` — print rendered messages only
+- `noop` — render but do not deliver
+- `log-only` — record send attempts in durable task history without external delivery
+
+For recurring operation on a real machine, use the helper below to print or install a cron entry:
+
+```bash
+scripts/task_install_tick_cron.sh --print
+scripts/task_install_tick_cron.sh --apply
+```
+
 ## ClawHub publish shape
 
 Recommended first public release posture:

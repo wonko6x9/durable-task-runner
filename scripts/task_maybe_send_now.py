@@ -47,6 +47,45 @@ def immediate_allowed(defaults: dict[str, Any], event_type: str) -> bool:
     return bool(mapping.get(event_type, False))
 
 
+def extract_json_object(raw: str) -> dict[str, Any]:
+    raw = raw.strip()
+    starts = [i for i, ch in enumerate(raw) if ch == "{"]
+    best: dict[str, Any] | None = None
+    for start in starts:
+        depth = 0
+        in_string = False
+        escape = False
+        for idx in range(start, len(raw)):
+            ch = raw[idx]
+            if in_string:
+                if escape:
+                    escape = False
+                elif ch == "\\":
+                    escape = True
+                elif ch == '"':
+                    in_string = False
+                continue
+            if ch == '"':
+                in_string = True
+                continue
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    candidate = raw[start:idx + 1]
+                    try:
+                        value = json.loads(candidate)
+                    except json.JSONDecodeError:
+                        break
+                    if isinstance(value, dict):
+                        best = value
+                    break
+    if best is not None:
+        return best
+    raise SystemExit(f"could not parse JSON payload from output: {raw}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("task_id")
@@ -71,7 +110,7 @@ def main() -> int:
         "--kind", "immediate",
         "--reason", args.event_type,
     ], text=True)
-    payload = json.loads(out)
+    payload = extract_json_object(out)
     print(json.dumps({"sent": True, "reason": args.event_type, "delivery": payload}, indent=2))
     return 0
 
