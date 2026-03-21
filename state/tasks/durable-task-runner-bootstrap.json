@@ -22,7 +22,7 @@
   "status_update_interval_seconds": 300,
   "last_status_update_at": "2026-03-20T22:40:01Z",
   "last_verified_step": "",
-  "next_step": "start non-bootstrap validation task and exercise resume/apply flow there",
+  "next_step": "add repeatable smoke script, then judge whether prototype validation is complete",
   "operator_note": "",
   "steering_note": "",
   "milestones": [
@@ -78,7 +78,7 @@
       "id": "m9",
       "title": "Prototype validation",
       "status": "running",
-      "percent": 15
+      "percent": 55
     }
   ],
   "subtasks": [

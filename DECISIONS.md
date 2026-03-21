@@ -54,3 +54,8 @@
 - Keep the auto-apply surface narrow: resumable main flow / resumable active line first; then straightforward `controller_decision_needed` cases where the next role is already explicit and low-risk.
 - Leave ambiguous or higher-risk cases as controller/operator decisions.
 - Rationale: the whole point of a durable runner is to keep moving unless there is a good reason not to.
+
+### Decision: prototype validation must include a non-bootstrap task
+- Dogfooding only on the bootstrap task is necessary but insufficient.
+- Before calling the prototype credible, validate restart/apply behavior on at least one separate durable task with its own state files.
+- Rationale: otherwise the project risks passing only because its self-test path is too tailored to itself.

@@ -1,0 +1,3 @@
+[2026-03-21T00:09:02Z] task created: Validation durable flow
+[2026-03-21T00:09:02Z] resume bootstrap scan: needs_attention — controller_decision_needed — 1 orchestration line(s) awaiting controller action
+[2026-03-21T00:09:02Z] resume apply: auto-dispatched resumed line validate-line

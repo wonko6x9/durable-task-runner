@@ -35,15 +35,20 @@ Milestone 7 — Subagent orchestration layer
 
 ## In-progress work
 
-- resume/bootstrap is now active with a real scan/classify/recommend helper
+- prototype validation is now active on a non-bootstrap durable task
 - preserving simple UX while adding just enough controller discipline to avoid dropped work
 - backlog still includes the reporting enhancement: separate progress bars for current task progress and full project status
 
 ## Next step
 
-- push bootstrap helper from recommendation into a clearer controller-ready resume flow
-- finish the standard spawn path handoff for the thin controller
+- package the non-bootstrap validation flow into a repeatable smoke script
+- decide whether any thin-controller gaps remain before calling the prototype milestone real
 - keep the orchestration model narrow unless real use proves more structure is necessary
+
+## Blockers
+
+- none currently
+ keep the orchestration model narrow unless real use proves more structure is necessary
 
 ## Blockers
 
