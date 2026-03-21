@@ -43,3 +43,4 @@
 [2026-03-21T00:08:23Z] Validation lane started: resume/apply also handles straightforward controller-decision cases.
 [2026-03-21T00:08:23Z] Shifted from resume/bootstrap implementation into prototype validation.
 [2026-03-21T00:09:43Z] Non-bootstrap validation passed: separate durable task resumed correctly through bootstrap/apply.
+[2026-03-21T00:30:14Z] Prepared reset-ready checkpoint with explicit resume commands and cleaned status docs.

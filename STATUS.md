@@ -10,11 +10,11 @@ healthy
 
 ## Current milestone
 
-Milestone 8 — Resume / restart bootstrap
+Milestone 9 — Prototype validation
 
 ## Last completed milestone
 
-Milestone 7 — Subagent orchestration layer
+Milestone 8 — Resume / restart bootstrap
 
 ## Last checkpoint
 
@@ -32,10 +32,12 @@ Milestone 7 — Subagent orchestration layer
 - `task_resume_bootstrap.py` now scans durable tasks after restart/reset, runs reconcile checks, classifies tasks, emits explicit resume recommendations, and can produce a controller-ready resume plan
 - `task_resume_apply.py` now consumes bootstrap output and applies low-risk resume follow-through for resumable tasks so reporting does not automatically become a stop signal
 - resume/apply flow now also handles the low-risk `controller_decision_needed` case by auto-dispatching straightforward waiting lines
+- non-bootstrap validation passed: a separate durable task was created, scanned, classified, planned, and resumed successfully
+- reset-ready handoff note written in `RESET-READY.md` with the exact first post-reset commands
 
 ## In-progress work
 
-- prototype validation is now active on a non-bootstrap durable task
+- prototype validation is active and already proved on a non-bootstrap durable task
 - preserving simple UX while adding just enough controller discipline to avoid dropped work
 - backlog still includes the reporting enhancement: separate progress bars for current task progress and full project status
 
@@ -44,11 +46,6 @@ Milestone 7 — Subagent orchestration layer
 - package the non-bootstrap validation flow into a repeatable smoke script
 - decide whether any thin-controller gaps remain before calling the prototype milestone real
 - keep the orchestration model narrow unless real use proves more structure is necessary
-
-## Blockers
-
-- none currently
- keep the orchestration model narrow unless real use proves more structure is necessary
 
 ## Blockers
 
