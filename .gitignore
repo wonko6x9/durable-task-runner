@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.swp
+*.tmp
+.tmp/
+
+# Runtime state generated while dogfooding or testing
+state/tasks/*.events.jsonl
+state/tasks/*.progress.log
+state/tasks/*.json
+!state/tasks/.gitkeep
+
+# Local interrupt queue runtime data
+state/tasks/interrupt-queue.json

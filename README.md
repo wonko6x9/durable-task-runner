@@ -31,6 +31,34 @@ Status:
 - supports thin controller/worker orchestration with anti-drop checks
 - includes repeatable local smoke validation for non-bootstrap resume/apply behavior
 
+## Install
+
+Clone the repo, then from the repo root:
+
+```bash
+./install.sh --link
+```
+
+That installs the skill into the default OpenClaw workspace-skills path as a symlink.
+Use `--copy` if you want a standalone installed copy instead.
+
+Verify:
+
+```bash
+openclaw skills list | grep durable-task-runner
+```
+
+## Smoke test
+
+```bash
+python3 scripts/task_core_smoke.py
+python3 scripts/task_validation_smoke.py
+```
+
+## GitHub readiness
+
+See `RELEASE.md` for the short upload/install checklist.
+
 Design stance:
 - intentionally minimal: enough structure to prevent dropped work, not enough to require a ritual manual
 - hybrid/agilefall: iterative implementation with explicit milestones, risks, and operational checkpoints
