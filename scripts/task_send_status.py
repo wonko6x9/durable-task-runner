@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 """
-Send a compact timed status line using the task's bound delivery metadata.
+Send a compact status line using the task's bound delivery metadata.
 
-Current scope:
-- read delivery binding from task artifacts
-- render compact ticker line
-- send via `openclaw message send`
-- record progress update locally after successful send
+Kinds:
+- timed: recurring due-based status tick
+- immediate: event-driven breadcrumb after meaningful task changes
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import subprocess
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -79,13 +77,25 @@ def extract_json_object(raw: str) -> dict[str, Any]:
     raise SystemExit(f"could not parse JSON payload from openclaw output: {raw}")
 
 
+def build_line(task_id: str, kind: str, reason: str | None) -> str:
+    line = run("python3", str(SCRIPT_DIR / "task_ticker.py"), task_id)
+    if kind == "immediate":
+        prefix = f"update:{reason}" if reason else "update"
+        return f"{prefix} | {line}"
+    return line
+
+
 def main() -> int:
-    if len(sys.argv) != 2:
-        raise SystemExit("usage: task_send_status.py <task-id>")
-    task_id = sys.argv[1]
+    ap = argparse.ArgumentParser()
+    ap.add_argument("task_id")
+    ap.add_argument("--kind", choices=["timed", "immediate"], default="timed")
+    ap.add_argument("--reason", default="")
+    args = ap.parse_args()
+
+    task_id = args.task_id
     task = load_task(task_id)
     binding = delivery_binding(task)
-    line = run("python3", str(SCRIPT_DIR / "task_ticker.py"), task_id)
+    line = build_line(task_id, args.kind, args.reason or None)
 
     cmd = [
         "openclaw", "message", "send",
@@ -98,11 +108,16 @@ def main() -> int:
     proc = subprocess.run(cmd, text=True, capture_output=True, check=True)
     combined_output = "\n".join(part for part in [proc.stdout.strip(), proc.stderr.strip()] if part).strip()
     delivery = extract_json_object(combined_output) if combined_output else {"raw": ""}
+
+    log_line = f"status sent ({args.kind}{':' + args.reason if args.reason else ''}): {line}"
     subprocess.run([
-        "python3", str(SCRIPT_DIR / "task_ctl.py"), "progress", task_id, line
+        "python3", str(SCRIPT_DIR / "task_ctl.py"), "progress", task_id, log_line,
+        "--report-kind", "internal",
     ], check=True, stdout=subprocess.DEVNULL)
     print(json.dumps({
         "sent": True,
+        "kind": args.kind,
+        "reason": args.reason,
         "line": line,
         "delivery": delivery,
         "raw_output": combined_output,

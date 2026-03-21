@@ -35,6 +35,7 @@ INCLUDE = [
     "scripts/task_send_status.py",
     "scripts/task_should_report.py",
     "scripts/task_status_tick.sh",
+    "scripts/task_tick_all.py",
     "scripts/task_subagent_ctl.py",
     "scripts/task_subagent_run.py",
     "scripts/task_subagent_spawn.py",
@@ -77,3 +78,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+in())

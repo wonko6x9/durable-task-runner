@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -21,6 +22,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 STATE_DIR = ROOT / "state" / "tasks"
+CONFIG_PATH = ROOT / "config" / "defaults.json"
+SCRIPT_DIR = ROOT / "scripts"
 
 
 def now_iso() -> str:
@@ -29,6 +32,12 @@ def now_iso() -> str:
 
 def ensure_dirs() -> None:
     STATE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def load_json(path: Path, default: Any) -> Any:
+    if not path.exists():
+        return default
+    return json.loads(path.read_text())
 
 
 def task_paths(task_id: str) -> dict[str, Path]:
@@ -69,6 +78,31 @@ def parse_json_arg(raw: str | None, default: Any) -> Any:
     if raw is None:
         return default
     return json.loads(raw)
+
+
+def has_delivery_binding(task: dict[str, Any]) -> bool:
+    for item in task.get("artifacts", []):
+        if isinstance(item, dict) and item.get("kind") == "delivery_binding":
+            return True
+    return False
+
+
+def maybe_send_now(task_id: str, event_type: str, force: bool = False) -> None:
+    task = load_snapshot(task_id)
+    if not has_delivery_binding(task):
+        return
+    cmd = ["python3", str(SCRIPT_DIR / "task_maybe_send_now.py"), task_id, event_type]
+    if force:
+        cmd.append("--force")
+    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def milestone_changed(before: dict[str, Any], after: dict[str, Any]) -> bool:
+    return json.dumps(before.get("milestones", []), sort_keys=True) != json.dumps(after.get("milestones", []), sort_keys=True)
+
+
+def phase_changed(before: dict[str, Any], after: dict[str, Any]) -> bool:
+    return before.get("phase") != after.get("phase")
 
 
 def cmd_create(args: argparse.Namespace) -> int:
@@ -174,23 +208,49 @@ def cmd_update(args: argparse.Namespace) -> int:
     })
     if args.progress_note:
         append_progress(args.task_id, args.progress_note)
+
+    if args.report_kind != "internal":
+        if data.get("desired_state") == "completed":
+            maybe_send_now(args.task_id, "completion")
+        elif phase_changed(before, data):
+            maybe_send_now(args.task_id, "phase")
+        elif milestone_changed(before, data):
+            maybe_send_now(args.task_id, "milestone")
+
     print(json.dumps(data, indent=2))
     return 0
 
 
 def cmd_event(args: argparse.Namespace) -> int:
-    load_snapshot(args.task_id)
+    snapshot = load_snapshot(args.task_id)
+    phase = args.phase or snapshot.get("phase", "")
     event = {
         "ts": now_iso(),
         "type": args.type,
         "task_id": args.task_id,
-        "phase": args.phase or load_snapshot(args.task_id).get("phase", ""),
+        "phase": phase,
         "status": args.status,
         "details": parse_json_arg(args.details, {}),
     }
     append_event(args.task_id, event)
     if args.progress_note:
         append_progress(args.task_id, args.progress_note)
+
+    if args.report_kind != "internal":
+        kind_map = {
+            "verification_passed": "milestone",
+            "verification_failed": "blocker",
+            "milestone_completed": "milestone",
+            "pause_requested": "control",
+            "resume_started": "resume",
+            "stop_requested": "control",
+            "task_completed": "completion",
+            "task_failed": "blocker",
+        }
+        report_type = kind_map.get(args.type)
+        if report_type:
+            maybe_send_now(args.task_id, report_type)
+
     print(json.dumps(event, indent=2))
     return 0
 
@@ -217,6 +277,7 @@ def cmd_progress(args: argparse.Namespace) -> int:
         "details": {
             "message": args.message,
             "next_step": data.get("next_step", ""),
+            "report_kind": args.report_kind,
         },
     })
     print(json.dumps({"task_id": args.task_id, "status": "ok", "message": args.message}, indent=2))
@@ -252,6 +313,8 @@ def cmd_control(args: argparse.Namespace) -> int:
         append_progress(args.task_id, f"control update: {desired} — {args.note}")
     else:
         append_progress(args.task_id, f"control update: {desired}")
+    if args.report_kind != "internal":
+        maybe_send_now(args.task_id, "control")
     print(json.dumps(data, indent=2))
     return 0
 
@@ -311,6 +374,7 @@ def build_parser() -> argparse.ArgumentParser:
         u.add_argument(f"--{field.replace('_','-')}")
     u.add_argument("--status-interval", type=int)
     u.add_argument("--progress-note")
+    u.add_argument("--report-kind", choices=["normal", "internal"], default="normal")
     u.set_defaults(func=cmd_update)
 
     e = sub.add_parser("event")
@@ -320,6 +384,7 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--status", default="ok")
     e.add_argument("--details")
     e.add_argument("--progress-note")
+    e.add_argument("--report-kind", choices=["normal", "internal"], default="normal")
     e.set_defaults(func=cmd_event)
 
     pr = sub.add_parser("progress")
@@ -328,12 +393,14 @@ def build_parser() -> argparse.ArgumentParser:
     pr.add_argument("--phase")
     pr.add_argument("--health")
     pr.add_argument("--next-step")
+    pr.add_argument("--report-kind", choices=["normal", "internal"], default="normal")
     pr.set_defaults(func=cmd_progress)
 
     ctl = sub.add_parser("control")
     ctl.add_argument("task_id")
     ctl.add_argument("desired_state", choices=["running", "paused", "stopped"])
     ctl.add_argument("--note")
+    ctl.add_argument("--report-kind", choices=["normal", "internal"], default="normal")
     ctl.set_defaults(func=cmd_control)
 
     r = sub.add_parser("recent")

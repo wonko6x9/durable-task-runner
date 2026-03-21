@@ -37,6 +37,7 @@ These are useful in the repo, but should not be shoved directly into a ClawHub p
 ```bash
 python3 scripts/task_validation_smoke.py
 python3 scripts/task_core_smoke.py
+python3 scripts/task_tick_all.py
 ```
 
 ## Prepare a clean ClawHub bundle
@@ -64,6 +65,17 @@ Or make a copied install:
 ```bash
 ./install.sh --copy
 ```
+
+## Reporting operation
+
+For actual recurring task updates, run:
+
+```bash
+python3 scripts/task_tick_all.py
+```
+
+That is the operational runner that scans all running tasks with delivery bindings and sends due status messages.
+Immediate breadcrumbs are emitted automatically on meaningful task transitions when a task has a delivery binding.
 
 ## ClawHub publish shape
 

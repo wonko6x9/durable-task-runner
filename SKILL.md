@@ -126,6 +126,7 @@ Use these directly:
 - `scripts/task_subagent_ctl.py` — manage controller-side worker lines
 - `scripts/task_subagent_run.py` — prepare a ready-to-use worker payload
 - `scripts/task_report.py` / `scripts/task_ticker.py` — render compact status
+- `scripts/task_tick_all.py` — run due status delivery across all eligible running tasks
 - `scripts/task_validation_smoke.py` / `scripts/task_core_smoke.py` — repeatable smoke checks
 
 ## Attribution discipline

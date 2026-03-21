@@ -19,6 +19,7 @@ Publish-readiness verification
 - added `scripts/prepare_publish.py` to build a curated ClawHub bundle from the development repo
 - development repo and public-skill surface are now explicitly separated in docs
 - clean publish bundle at `dist/durable-task-runner` passed both smoke suites from an isolated temp directory
+- progress reporting is now operational rather than theoretical: `scripts/task_tick_all.py` provides the recurring runner and immediate state-change breadcrumbs are wired through `task_ctl.py`
 
 ## In-progress work
 

@@ -13,6 +13,7 @@ Run from repo root:
 ```bash
 python3 scripts/task_validation_smoke.py
 python3 scripts/task_core_smoke.py
+python3 scripts/task_tick_all.py
 python3 scripts/prepare_publish.py
 ```
 
