@@ -1,45 +1,42 @@
 # RELEASE.md
 
-GitHub-ready release checklist for `durable-task-runner`.
+Release checklist for the development repo.
 
-## Definition of done
+## Goal
 
-- skill folder is self-contained
-- `SKILL.md` is present at repo root
-- install path is documented
-- `install.sh` can copy or link the skill into an OpenClaw workspace
-- repeatable smoke coverage passes
-- repo does not depend on committed runtime state to function
+Keep the repository useful for development while emitting a cleaner public-skill bundle for ClawHub.
 
-## Local verification
+## Verification
 
-From the repo root:
+Run from repo root:
 
 ```bash
-python3 scripts/task_core_smoke.py
 python3 scripts/task_validation_smoke.py
-./install.sh --copy --target /tmp/durable-task-runner
+python3 scripts/task_core_smoke.py
+python3 scripts/prepare_publish.py
 ```
 
-Optional workspace install:
+## Publish flow
 
-```bash
-./install.sh --link
-openclaw skills list | grep durable-task-runner
-```
-
-## Upload to GitHub
-
-1. Ensure the repo is clean:
+1. Build the clean bundle:
    ```bash
-   git status
+   python3 scripts/prepare_publish.py
    ```
-2. Push to the desired GitHub remote.
-3. After clone on another machine, install with either:
-   - `./install.sh --link`
-   - `./install.sh --copy`
+2. Review the output folder:
+   ```bash
+   find dist/durable-task-runner -maxdepth 3 -type f | sort
+   ```
+3. Publish from the clean bundle, not from the repo root:
+   ```bash
+   clawhub publish dist/durable-task-runner \
+     --slug durable-task-runner \
+     --name "Durable Task Runner" \
+     --version 0.1.0 \
+     --changelog "Initial public release: durable task state, resume/apply flow, reporting, verification, and thin subagent orchestration."
+   ```
 
 ## Notes
 
-- `state/tasks/` runtime files are treated as generated state, not required package contents.
-- The install script excludes runtime task logs/state when using `--copy`.
+- The full repo intentionally contains dogfooding/project-history files that are not part of the preferred ClawHub publish surface.
+- `scripts/prepare_publish.py` is the canonical way to build the publishable bundle.
+- ClawHub auth is still a separate prerequisite (`clawhub login`).

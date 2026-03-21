@@ -1,64 +1,77 @@
 # durable-task-runner
 
-Durable task orchestration scaffolding for OpenClaw.
+Durable task orchestration for OpenClaw.
 
-Current contents:
-- Agent skill: `SKILL.md`
-- Reference schema: `references/task-schema.md`
-- Control helper: `scripts/task_ctl.py`
-- Reporting helpers: `scripts/task_report.py`, `scripts/task_ticker.py`, `scripts/task_send_status.py`, `scripts/task_status_tick.sh`
-- Reconcile/resume helpers: `scripts/task_reconcile.py`, `scripts/task_resume_bootstrap.py`, `scripts/task_resume_apply.py`
-- Subagent/controller helpers: `scripts/task_subagent_ctl.py`, `scripts/task_subagent_spawn.py`, `scripts/task_subagent_run.py`
-- Repeatable validation harness: `scripts/task_validation_smoke.py`
-- Source provenance: `ATTRIBUTION.md`
+This repo is the development/workbench version of the skill. It includes dogfooding artifacts, project-history docs, and helper scripts used to build and test the public skill.
 
-Purpose:
-- survive resets/restarts
-- keep append-only event logs
-- support pause/stop/steer
-- provide milestone-aware progress tracking
-- support orchestration-first, subagent-worker execution
-- keep long work moving without depending on fragile live agent memory
+## What it does
 
-Influences / provenance:
-- This project is informed by ClawHub skills including `task-resume`, `restart-safe-workflow`, and `subagent-orchestrator`.
-- See `ATTRIBUTION.md` for what was borrowed conceptually and what was not copied.
+- persists task state to disk instead of relying on chat memory
+- tracks milestones, progress, events, and verification
+- survives resets with resume/bootstrap helpers
+- supports pause / stop / steer controls
+- supports thin controller/worker subagent orchestration
+- renders compact status output for longer-running work
 
-Status:
-- working prototype
-- self-tracks through durable task state/artifacts
-- supports restart scan/plan/apply flow
-- supports thin controller/worker orchestration with anti-drop checks
-- includes repeatable local smoke validation for non-bootstrap resume/apply behavior
+## Repository layout
 
-## Install
+### Public skill surface
+These are the files that matter for the published skill:
+- `SKILL.md`
+- `ATTRIBUTION.md`
+- `config/defaults.json`
+- `references/`
+- `scripts/`
 
-Clone the repo, then from the repo root:
+### Development / dogfooding artifacts
+These are useful in the repo, but should not be shoved directly into a ClawHub publish bundle:
+- `PLAN.md`
+- `BACKLOG.md`
+- `DECISIONS.md`
+- `STATUS.md`
+- `RESET-READY.md`
+- `RELEASE.md`
+
+## Local development checks
+
+```bash
+python3 scripts/task_validation_smoke.py
+python3 scripts/task_core_smoke.py
+```
+
+## Prepare a clean ClawHub bundle
+
+```bash
+python3 scripts/prepare_publish.py
+```
+
+That builds a curated publish folder at:
+
+```text
+./dist/durable-task-runner
+```
+
+Publish from that folder, not from the full development repo root.
+
+## Install locally for OpenClaw
 
 ```bash
 ./install.sh --link
 ```
 
-That installs the skill into the default OpenClaw workspace-skills path as a symlink.
-Use `--copy` if you want a standalone installed copy instead.
-
-Verify:
+Or make a copied install:
 
 ```bash
-openclaw skills list | grep durable-task-runner
+./install.sh --copy
 ```
 
-## Smoke test
+## ClawHub publish shape
 
-```bash
-python3 scripts/task_core_smoke.py
-python3 scripts/task_validation_smoke.py
-```
+Recommended first public release posture:
+- version: `0.1.0`
+- tone: working early release, not fake-1.0 triumphalism
+- publish input: `dist/durable-task-runner`
 
-## GitHub readiness
+## Provenance
 
-See `RELEASE.md` for the short upload/install checklist.
-
-Design stance:
-- intentionally minimal: enough structure to prevent dropped work, not enough to require a ritual manual
-- hybrid/agilefall: iterative implementation with explicit milestones, risks, and operational checkpoints
+This project is original glue code and workflow design, but it openly credits the ClawHub skills that influenced parts of the model. See `ATTRIBUTION.md`.

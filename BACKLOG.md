@@ -34,3 +34,10 @@ Status legend: `todo` | `doing` | `blocked` | `done`
 
 This file is intentionally editable mid-flow.
 New work discovered during execution can be added here without pretending the original plan was complete.
+
+## Release hardening follow-through
+
+- [done] Tighten the public skill body for ClawHub-style consumption
+- [done] Add a concrete quickstart reference for repeated use
+- [done] Add a deterministic clean-bundle export path for publishing
+- [done] Verify the clean publish bundle in isolation, not just from the dev repo

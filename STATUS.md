@@ -2,7 +2,7 @@
 
 ## Current phase
 
-Release-ready / closeout complete
+ClawHub release hardening
 
 ## Health
 
@@ -10,31 +10,27 @@ healthy
 
 ## Current milestone
 
-Audit backlog truth vs repo reality
+Publish-readiness verification
 
 ## Last checkpoint
 
-- audit confirmed the old backlog still contained stale `doing` entries that are already complete in code
-- real remaining work has been narrowed to three items:
-  - stronger smoke/test coverage where useful
-  - dogfooding on a separate real-world long task
-  - GitHub-ready/installable packaging and docs
-- current project task: `state/tasks/backlog-completion-project.json`
+- skill body tightened to be more concise and trigger-friendly
+- added `references/quickstart.md` for a concrete end-to-end usage pattern
+- added `scripts/prepare_publish.py` to build a curated ClawHub bundle from the development repo
+- development repo and public-skill surface are now explicitly separated in docs
+- clean publish bundle at `dist/durable-task-runner` passed both smoke suites from an isolated temp directory
 
 ## In-progress work
 
-- converting backlog/status docs from optimistic history to verified reality
-- using the runner itself to manage this release-hardening project as the real-world dogfood lane
-- preparing install/release packaging so the repo can be uploaded to GitHub and installed cleanly
+- final release-hardening pass is effectively complete
+- remaining blocker to actual submission is ClawHub authentication, not code or packaging
 
 ## Next step
 
-- add broader repeatable smoke coverage for core helpers
-- add install/release documentation and packaging helpers
-- verify the repo presents as an installable skill package, then close the project
+- run `clawhub login`
+- publish from `dist/durable-task-runner`
+- use an honest first release version such as `0.1.0`
 
 ## Blockers
 
-- none currently
-ently
-currently
+- `clawhub whoami` currently fails because this machine is not logged in
