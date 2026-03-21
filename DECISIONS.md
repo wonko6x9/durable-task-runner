@@ -58,4 +58,5 @@
 ### Decision: prototype validation must include a non-bootstrap task
 - Dogfooding only on the bootstrap task is necessary but insufficient.
 - Before calling the prototype credible, validate restart/apply behavior on at least one separate durable task with its own state files.
+- The validation path should also be repeatable via a small local smoke harness instead of depending on a one-off handcrafted run.
 - Rationale: otherwise the project risks passing only because its self-test path is too tailored to itself.

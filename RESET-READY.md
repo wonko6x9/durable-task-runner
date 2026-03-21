@@ -31,9 +31,9 @@ python3 scripts/task_resume_apply.py --file /tmp/dtr-bootstrap-plan.json
 
 ## Expected immediate follow-up work
 
-1. Add a repeatable smoke script for validation task create/bootstrap/apply
-2. Re-run validation via that smoke path
-3. Decide whether milestone 9 is complete or whether one meaningful gap still remains
+1. Re-run validation via `python3 scripts/task_validation_smoke.py`
+2. Decide whether milestone 9 is complete or whether one meaningful gap still remains
+3. Keep the next gap small and evidence-driven if one shows up
 
 ## Notes
 

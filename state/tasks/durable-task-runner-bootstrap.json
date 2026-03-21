@@ -18,11 +18,11 @@
   "phase": "prototype-validation",
   "health": "healthy",
   "created_at": "2026-03-20T20:44:04Z",
-  "updated_at": "2026-03-21T00:08:23Z",
+  "updated_at": "2026-03-21T00:32:28Z",
   "status_update_interval_seconds": 300,
   "last_status_update_at": "2026-03-20T22:40:01Z",
   "last_verified_step": "",
-  "next_step": "add repeatable smoke script, then judge whether prototype validation is complete",
+  "next_step": "decide whether any thin-controller gaps remain before calling milestone 9 complete",
   "operator_note": "",
   "steering_note": "",
   "milestones": [
@@ -78,7 +78,7 @@
       "id": "m9",
       "title": "Prototype validation",
       "status": "running",
-      "percent": 55
+      "percent": 80
     }
   ],
   "subtasks": [

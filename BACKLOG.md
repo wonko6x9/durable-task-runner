@@ -21,7 +21,7 @@ Status legend: `todo` | `doing` | `blocked` | `done`
 - [done] Add controller-ready resume plans from bootstrap output
 - [done] Add low-risk controller resume-apply path from bootstrap output
 - [done] Validate resume/apply flow on a non-bootstrap durable task
-- [todo] Add repeatable smoke script for validation task creation/bootstrap/apply
+- [done] Add repeatable smoke script for validation task creation/bootstrap/apply
 - [done] Define task complexity levels (0..N) and artifact-selection rules
 - [done] Add STATUS.md format and live project status updates
 - [done] Add DECISIONS.md for architectural/process choices
