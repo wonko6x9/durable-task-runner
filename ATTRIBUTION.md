@@ -85,6 +85,12 @@ This repo currently contains:
 
 These files were written here, but influenced by the source ideas above.
 
+## Development provenance
+
+This project was developed iteratively with hands-on assistance from OpenClaw/LLM tooling.
+It was also reviewed critically with Claude during hardening/publish-readiness passes.
+Final code selection, integration, testing, and publication decisions were curated by John Watson.
+
 ## Future rule
 
 If we later import literal code fragments or closely adapted structures from any source, update this file and add an inline note in the relevant file header.

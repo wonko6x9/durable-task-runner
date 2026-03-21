@@ -20,6 +20,7 @@ Publish-readiness verification
 - development repo and public-skill surface are now explicitly separated in docs
 - clean publish bundle at `dist/durable-task-runner` passed both smoke suites from an isolated temp directory
 - progress reporting is now operational rather than theoretical: `scripts/task_tick_all.py` provides the recurring runner and immediate state-change breadcrumbs are wired through `task_ctl.py`
+- publish polish added: MIT license, explicit development provenance, dependency/runtime notes, and clearer bundle expectations
 
 ## In-progress work
 

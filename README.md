@@ -53,6 +53,7 @@ That builds a curated publish folder at:
 ```
 
 Publish from that folder, not from the full development repo root.
+The curated bundle intentionally excludes development-history docs and runtime task state.
 
 ## Install locally for OpenClaw
 
@@ -76,6 +77,18 @@ python3 scripts/task_tick_all.py
 
 That is the operational runner that scans all running tasks with delivery bindings and sends due status messages.
 Immediate breadcrumbs are emitted automatically on meaningful task transitions when a task has a delivery binding.
+
+## ClawHub publish shape
+
+Recommended first public release posture:
+- version: `0.1.0`
+- tone: working early release, not fake-1.0 triumphalism
+- publish input: `dist/durable-task-runner`
+
+## Provenance
+
+This project is original glue code and workflow design, but it openly credits the ClawHub skills that influenced parts of the model. See `ATTRIBUTION.md`.
+hen a task has a delivery binding.
 
 ## ClawHub publish shape
 

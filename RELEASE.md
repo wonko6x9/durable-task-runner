@@ -40,4 +40,6 @@ python3 scripts/prepare_publish.py
 
 - The full repo intentionally contains dogfooding/project-history files that are not part of the preferred ClawHub publish surface.
 - `scripts/prepare_publish.py` is the canonical way to build the publishable bundle.
+- The publish bundle intentionally excludes runtime task state (`state/tasks/`) and other generated/local-history artifacts.
+- The Python scripts are stdlib-only; no external Python dependencies are required.
 - ClawHub auth is still a separate prerequisite (`clawhub login`).

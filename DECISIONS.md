@@ -16,7 +16,7 @@
 - Rationale: improves continuity, reduces context loss, and better matches long-running project work.
 
 ### Decision: keep bulk process memory out of hot context
-- `MEMORY.md` should reference the durable-task-runner process memory model, but the bulk should live in a separate reference file and only engage above a configurable threshold.
+- In the parent OpenClaw workspace, the durable-task-runner process memory model should be referenced lightly, while the bulk lives in a separate reference file and only engages above a configurable threshold.
 - Rationale: preserve learning without bloating startup context.
 
 ### Decision: align to PMP / Agile / ITIL principles without copying proprietary text

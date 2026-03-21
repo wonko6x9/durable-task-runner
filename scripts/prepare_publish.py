@@ -19,6 +19,7 @@ DEFAULT_OUT = ROOT / "dist" / "durable-task-runner"
 
 INCLUDE = [
     "SKILL.md",
+    "LICENSE",
     "ATTRIBUTION.md",
     "config/defaults.json",
     "references/control-levels.md",
