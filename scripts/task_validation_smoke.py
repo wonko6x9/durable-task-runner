@@ -28,7 +28,7 @@ SCRIPT_DIR = ROOT / "scripts"
 
 
 def now_tag() -> str:
-    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
 
 
 def run(*args: str, input_text: str | None = None) -> str:
