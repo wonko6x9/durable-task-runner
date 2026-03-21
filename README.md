@@ -13,6 +13,28 @@ This repo is the development/workbench version of the skill. It includes dogfood
 - supports thin controller/worker subagent orchestration
 - renders compact status output for longer-running work
 
+## Process model
+
+Durable Task Runner uses a hybrid process model that pulls from the most useful parts of PMP, Agile, structured sequencing where dependencies justify it, and ITIL-style operational discipline.
+
+The goal is not to bury users in process. The goal is to strengthen the backend framework enough that long work actually finishes, keeps moving across resets/interruption, and stays visible while it is in flight.
+
+In practice, the runner:
+- scales the amount of process and artifact depth to the size/risk of the task
+- asks the user for a few key blanks when needed, then drives the rest through durable state and helper scripts
+- uses planning, checkpoints, verification, and resume logic to keep projects moving toward completion
+- treats robustness and continued real-world testing as ongoing goals of the framework itself
+
+The current priority is practical rather than grandiose: get projects to finish reliably. Industry-standard process ideas are used because they provide a stronger architecture for that than ad-hoc chat memory alone.
+
+## Visibility and progress
+
+Visible progress is a core feature, not cosmetic fluff.
+
+Task and project progress bars, milestone updates, and timed status messages exist to answer the most important operational question during long work: did the task die, or is it still moving?
+
+By default, reporting stays low-noise and milestone-oriented. It can also be configured for more regular timed updates, higher-visibility operational reporting, or quieter completion-focused behavior when that better fits the job.
+
 ## Repository layout
 
 ### Public skill surface
