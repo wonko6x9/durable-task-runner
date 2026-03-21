@@ -94,6 +94,7 @@ Immediate breadcrumbs are emitted automatically on meaningful task transitions w
 
 Recommended first public release posture:
 - version: `0.1.0`
+- review note: this branch exists only to trigger a GitHub/Codex review before submission
 - tone: working early release, not fake-1.0 triumphalism
 - publish input: `dist/durable-task-runner`
 
