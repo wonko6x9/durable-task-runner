@@ -39,7 +39,7 @@ Milestone 8 — Resume / restart bootstrap
 
 - prototype validation is active and already proved on a non-bootstrap durable task
 - preserving simple UX while adding just enough controller discipline to avoid dropped work
-- backlog still includes the reporting enhancement: separate progress bars for current task progress and full project status
+- reporting enhancement landed: reporter/ticker now show separate progress bars for current task progress and full project status
 - repeatable smoke validation harness added at `scripts/task_validation_smoke.py`
 
 ## Next step

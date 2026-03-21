@@ -12,7 +12,7 @@ Status legend: `todo` | `doing` | `blocked` | `done`
 
 - [done] Add timed status reporting every 5 minutes regardless of milestone, optimized for minimal-token / maximum-information output (progress-bar style if practical)
 - [done] Add heartbeat/progress helper with reporting levels
-- [todo] Extend task reporter to show both current task progress and full project status as separate progress bars
+- [done] Extend task reporter to show both current task progress and full project status as separate progress bars
 - [doing] Add subagent dispatch/controller helper
 - [doing] Tighten dropped-line checks and worker-result handling without bloating the controller
 - [doing] Connect thin controller helper to real subagent runs

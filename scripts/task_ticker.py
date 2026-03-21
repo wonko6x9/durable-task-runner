@@ -6,6 +6,7 @@ Goal:
 - minimal tokens
 - maximum signal
 - suitable for 5-minute heartbeat-style updates regardless of milestone
+- show both current-task progress and overall-project progress
 """
 
 from __future__ import annotations
@@ -40,21 +41,44 @@ def overall_percent(task: dict[str, Any]) -> int:
     return round(sum(vals) / len(vals))
 
 
+def current_milestone_record(task: dict[str, Any]) -> dict[str, Any] | None:
+    for milestone in task.get("milestones", []):
+        if milestone.get("status") == "running":
+            return milestone
+    return None
+
+
+def current_task_percent(task: dict[str, Any]) -> int:
+    milestone = current_milestone_record(task)
+    if milestone is not None:
+        return int(milestone.get("percent", 0))
+    milestones = task.get("milestones", [])
+    if milestones and all(m.get("status") == "done" for m in milestones):
+        return 100
+    return overall_percent(task)
+
+
 def current_milestone(task: dict[str, Any]) -> str:
-    for m in task.get("milestones", []):
-        if m.get("status") == "running":
-            return m.get("title", "running")
+    milestone = current_milestone_record(task)
+    if milestone is not None:
+        return milestone.get("title", "running")
     return "none"
 
 
 def render(task: dict[str, Any]) -> str:
-    pct = overall_percent(task)
-    bar = progress_bar(pct)
+    current_pct = current_task_percent(task)
+    overall_pct = overall_percent(task)
+    current_bar = progress_bar(current_pct)
+    overall_bar = progress_bar(overall_pct)
     phase = task.get("phase", "?")
     health = task.get("health", "?")
     ms = current_milestone(task)
     next_step = task.get("next_step", "n/a")
-    return f"{bar} {pct:>3}% | {phase} | {health} | {ms} | next: {next_step}"
+    return (
+        f"task {current_bar} {current_pct:>3}% | "
+        f"proj {overall_bar} {overall_pct:>3}% | "
+        f"{phase} | {health} | {ms} | next: {next_step}"
+    )
 
 
 def main() -> int:

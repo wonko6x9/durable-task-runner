@@ -1,0 +1,59 @@
+{
+  "task_id": "backlog-progress-bars-test",
+  "title": "Backlog test: dual progress bars",
+  "goal": "Implement separate current-task and overall-project progress bars in reporting output as a real dogfood test of durable-task-runner",
+  "done_criteria": [
+    "ticker shows both current-task and overall-project bars",
+    "reporter output reflects both metrics",
+    "changes documented and committed"
+  ],
+  "constraints": [
+    "keep output compact",
+    "avoid overbuilding reporting format",
+    "local-only change"
+  ],
+  "desired_state": "completed",
+  "execution_priority": "tokens",
+  "phase": "complete",
+  "health": "healthy",
+  "created_at": "2026-03-21T01:11:32Z",
+  "updated_at": "2026-03-21T01:12:41Z",
+  "status_update_interval_seconds": 300,
+  "last_status_update_at": "2026-03-21T01:11:37Z",
+  "last_verified_step": "manual_cli_render_check",
+  "next_step": "pick the next backlog item or dogfood on a longer task",
+  "operator_note": "",
+  "steering_note": "",
+  "milestones": [
+    {
+      "id": "b1",
+      "title": "Plan and baseline",
+      "status": "done",
+      "percent": 100
+    },
+    {
+      "id": "b2",
+      "title": "Implement dual-bar rendering",
+      "status": "done",
+      "percent": 100
+    },
+    {
+      "id": "b3",
+      "title": "Verify output and close",
+      "status": "done",
+      "percent": 100
+    }
+  ],
+  "subtasks": [],
+  "artifacts": [],
+  "risk_notes": [],
+  "pending_actions": [],
+  "action_states": {},
+  "idempotency_ledger": {},
+  "reconcile": {
+    "needed": false,
+    "reason": "",
+    "last_run_at": null,
+    "status": "idle"
+  }
+}
