@@ -7,6 +7,7 @@ Purpose:
 - scan all task snapshots
 - skip tasks that are not active or do not have delivery bindings
 - only send when the task is actually due
+- treat per-task delivery/parser failures as task-local errors instead of aborting the full sweep
 """
 
 from __future__ import annotations
@@ -43,15 +44,56 @@ def iter_tasks() -> list[dict[str, Any]]:
     return rows
 
 
+def extract_json_object(raw: str) -> dict[str, Any]:
+    raw = raw.strip()
+    starts = [i for i, ch in enumerate(raw) if ch == "{"]
+    best: dict[str, Any] | None = None
+    for start in starts:
+        depth = 0
+        in_string = False
+        escape = False
+        for idx in range(start, len(raw)):
+            ch = raw[idx]
+            if in_string:
+                if escape:
+                    escape = False
+                elif ch == "\\":
+                    escape = True
+                elif ch == '"':
+                    in_string = False
+                continue
+            if ch == '"':
+                in_string = True
+                continue
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    candidate = raw[start:idx + 1]
+                    try:
+                        value = json.loads(candidate)
+                    except json.JSONDecodeError:
+                        break
+                    if isinstance(value, dict):
+                        best = value
+                    break
+    if best is not None:
+        return best
+    raise ValueError(f"could not parse JSON payload from output: {raw}")
+
+
 def run_json(*args: str) -> dict[str, Any]:
-    out = subprocess.check_output(args, text=True)
-    return json.loads(out)
+    proc = subprocess.run(list(args), text=True, capture_output=True, check=True)
+    combined = "\n".join(part for part in [proc.stdout.strip(), proc.stderr.strip()] if part).strip()
+    return extract_json_object(combined)
 
 
 def main() -> int:
     scanned = 0
     eligible = 0
     sent = 0
+    errors = 0
     results = []
 
     for task in iter_tasks():
@@ -64,23 +106,45 @@ def main() -> int:
             results.append({"task_id": task_id, "status": "skipped", "reason": "no_delivery_binding"})
             continue
         eligible += 1
-        due = run_json("python3", str(SCRIPT_DIR / "task_should_report.py"), task_id)
-        if not due.get("due"):
-            results.append({"task_id": task_id, "status": "skipped", "reason": due.get("reason", "not_due")})
-            continue
-        delivery = run_json("python3", str(SCRIPT_DIR / "task_send_status.py"), task_id)
-        sent += 1
-        results.append({
-            "task_id": task_id,
-            "status": "sent",
-            "reason": due.get("reason", "due"),
-            "line": delivery.get("line", ""),
-        })
+        try:
+            due = run_json("python3", str(SCRIPT_DIR / "task_should_report.py"), task_id)
+            if not due.get("due"):
+                results.append({"task_id": task_id, "status": "skipped", "reason": due.get("reason", "not_due")})
+                continue
+            delivery = run_json("python3", str(SCRIPT_DIR / "task_send_status.py"), task_id)
+            sent += 1
+            results.append({
+                "task_id": task_id,
+                "status": "sent",
+                "reason": due.get("reason", "due"),
+                "line": delivery.get("line", ""),
+                "method": (delivery.get("delivery") or {}).get("method", "unknown"),
+            })
+        except subprocess.CalledProcessError as exc:
+            errors += 1
+            results.append({
+                "task_id": task_id,
+                "status": "error",
+                "reason": "command_failed",
+                "command": exc.cmd,
+                "returncode": exc.returncode,
+                "stdout": (exc.stdout or "").strip(),
+                "stderr": (exc.stderr or "").strip(),
+            })
+        except Exception as exc:
+            errors += 1
+            results.append({
+                "task_id": task_id,
+                "status": "error",
+                "reason": type(exc).__name__,
+                "message": str(exc),
+            })
 
     print(json.dumps({
         "scanned": scanned,
         "eligible": eligible,
         "sent": sent,
+        "errors": errors,
         "results": results,
     }, indent=2))
     return 0

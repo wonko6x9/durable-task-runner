@@ -33,6 +33,13 @@ Visible progress is a core feature, not cosmetic fluff.
 
 Task and project progress bars, milestone updates, and timed status messages exist to answer the most important operational question during long work: did the task die, or is it still moving?
 
+The bars are intended to be real operational metrics, but not fake precision:
+- the **project** bar reflects aggregate milestone completion recorded in durable task state
+- the **task** bar reflects the currently active work slice or milestone progress
+- both depend on the plan being scoped sanely and updated as the task evolves
+
+So the bars are meaningful, but they are still model-based. They are best treated as liveness/progress indicators grounded in explicit milestone state, not as earned-value accounting or mathematically exact completion truth.
+
 By default, reporting stays low-noise and milestone-oriented. It can also be configured for more regular timed updates, higher-visibility operational reporting, or quieter completion-focused behavior when that better fits the job.
 
 ## Repository layout

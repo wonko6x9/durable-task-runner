@@ -45,6 +45,16 @@ New work discovered during execution can be added here without pretending the or
 
 ## Post-0.1.0 / 0.1.1 candidate
 
-- [doing] Add explicit safe delivery modes (`stdout`, `noop`, `log-only`) alongside live OpenClaw delivery
-- [doing] Add targeted delivery-path smoke coverage, including immediate-send behavior and no-binding/no-loop checks
-- [doing] Add a concrete scheduler/setup helper for recurring `task_tick_all.py` operation
+- [done] Add explicit safe delivery modes (`stdout`, `noop`, `log-only`) alongside live OpenClaw delivery
+- [done] Add targeted delivery-path smoke coverage, including immediate-send behavior and no-binding/no-loop checks
+- [done] Add a concrete scheduler/setup helper for recurring `task_tick_all.py` operation
+
+## Deferred beyond 0.1.1
+
+- [todo] Auto-bind new durable tasks in the active chat/session so progress delivery works without manual delivery-binding setup
+- [todo] Make recurring tick execution ambient by default in suitable environments instead of requiring the operator to remember cron/timer setup
+- [todo] Add a richer real-world example project/reference walkthrough for new adopters
+- [todo] Expand reporting-mode docs and operator guidance once real usage shows which knobs are actually confusing
+- [todo] Reassess progress-bar math after more real-world use and tighten the metric so it stays grounded in explicit state rather than vague operator feel
+- [todo] Consider weighted milestones / better roll-up rules only if that improves signal without turning reporting into workflow theater
+- [todo] Consider broader controller/subagent ergonomics only after more real-world use justifies the extra surface area
