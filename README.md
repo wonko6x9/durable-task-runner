@@ -149,6 +149,11 @@ Delivery bindings now support safer explicit modes:
 - `noop` — render but do not deliver
 - `log-only` — record send attempts in durable task history without external delivery
 
+Context-pressure guardrails are available via `scripts/task_context_guard.py`:
+- below 45%: no action
+- at 45%+: write a prepare/checkpoint breadcrumb
+- at 50%+: pause the task, queue immediate post-reset resume, and emit a machine-readable handoff payload so the surrounding runtime can reset and continue cleanly
+
 For recurring operation on a real machine, use the helper below to print or install a cron entry:
 
 ```bash

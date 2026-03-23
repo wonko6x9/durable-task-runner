@@ -14,6 +14,7 @@ Expected notes:
 - ClawHub-facing package is more intentional about what end users actually need to install/use
 - stale ordinary `running` tasks are now pause-cleaned instead of looping forever with fake continuation heartbeats
 - tick sweeps avoid sending misleading recurring bars for tasks just reclassified out of the active lane
+- added `task_context_guard.py` to make the 45% prepare / 50% hard-stop-reset-resume policy scriptable instead of just aspirational
 
 ## v0.1.2
 

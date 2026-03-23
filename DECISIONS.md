@@ -57,6 +57,7 @@
 
 ### Decision: durable work should hand off before hot context becomes a cliff
 - Treat roughly 45% session context as the target threshold for checkpoint + handoff preparation on active durable work, with 50% as the hard stop that should trigger a clean reset/handoff path rather than continued accumulation.
+- The hard-stop path should be operational, not aspirational: pause the task, record durable state, queue immediate post-reset resume intent, and emit a machine-readable handoff payload for the surrounding runtime.
 - The durable runner should not depend on operator vigilance for this; the rule belongs in backlog/design as a first-class operational guardrail.
 - Rationale: once the hot context crosses the durability cliff, quality degrades and resets become more brittle. Leaving headroom is cheaper than pretending the cliff is not there.
 
