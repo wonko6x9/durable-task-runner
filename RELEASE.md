@@ -28,13 +28,14 @@ python3 scripts/prepare_publish.py
    ```bash
    find dist/durable-task-runner -maxdepth 3 -type f | sort
    ```
-3. Publish from the clean bundle, not from the repo root:
+3. Review `CHANGELOG.md`, `STATUS.md`, and the top lines of `README.md` / `SKILL.md` so public copy and release notes are honest.
+4. Publish from the clean bundle, not from the repo root:
    ```bash
    clawhub publish dist/durable-task-runner \
      --slug durable-task-runner \
      --name "Durable Task Runner" \
-     --version 0.1.0 \
-     --changelog "Initial public release: durable task state, resume/apply flow, reporting, verification, and thin subagent orchestration."
+     --version 0.1.2 \
+     --changelog "Refine public positioning for reset-safe long work, refresh release/status hygiene, and publish the 0.1.2 bundle with release history included."
    ```
 
 ## Notes

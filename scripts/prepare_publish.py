@@ -19,6 +19,8 @@ DEFAULT_OUT = ROOT / "dist" / "durable-task-runner"
 
 INCLUDE = [
     "SKILL.md",
+    "README.md",
+    "CHANGELOG.md",
     "LICENSE",
     "ATTRIBUTION.md",
     "config/defaults.json",
