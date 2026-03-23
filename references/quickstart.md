@@ -54,9 +54,21 @@ python3 scripts/task_ctl.py update demo-task \
   --progress-note "task completed"
 ```
 
-## Restart / resume flow
+## Restart / continue flow
 
-When a task resumes after interruption:
+After interruption, reset, or reboot, prefer the explicit recovery move:
+
+```bash
+python3 scripts/task_continue.py
+```
+
+Or target a specific task directly:
+
+```bash
+python3 scripts/task_continue.py --task-id demo-task
+```
+
+When you need to inspect the decision surface manually:
 
 ```bash
 python3 scripts/task_resume_bootstrap.py --task-id demo-task --plan

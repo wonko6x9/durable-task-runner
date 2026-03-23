@@ -92,6 +92,18 @@ def classify_task(task: dict[str, Any]) -> tuple[str, list[str], dict[str, int]]
             if status in {"autopilot", "handoff"} and next_role in {None, "", "none"}:
                 counts["dropped_lines"] += 1
 
+    if desired_state == "paused":
+        reasons.append("desired_state=paused")
+        return "paused", reasons, counts
+    if desired_state == "stopped":
+        reasons.append("desired_state=stopped")
+        return "stopped", reasons, counts
+    if desired_state == "completed":
+        reasons.append("desired_state=completed")
+        return "completed", reasons, counts
+    if desired_state == "failed":
+        reasons.append("desired_state=failed")
+        return "failed", reasons, counts
     if counts["dropped_lines"]:
         reasons.append(f"{counts['dropped_lines']} dropped orchestration line(s)")
         return "needs_attention", reasons, counts
@@ -108,18 +120,6 @@ def classify_task(task: dict[str, Any]) -> tuple[str, list[str], dict[str, int]]
     if desired_state == "running":
         reasons.append("desired_state=running")
         return "resumable", reasons, counts
-    if desired_state == "paused":
-        reasons.append("desired_state=paused")
-        return "paused", reasons, counts
-    if desired_state == "stopped":
-        reasons.append("desired_state=stopped")
-        return "stopped", reasons, counts
-    if desired_state == "completed":
-        reasons.append("desired_state=completed")
-        return "completed", reasons, counts
-    if desired_state == "failed":
-        reasons.append("desired_state=failed")
-        return "failed", reasons, counts
     reasons.append(f"unrecognized desired_state={desired_state}")
     return "needs_attention", reasons, counts
 

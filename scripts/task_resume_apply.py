@@ -146,7 +146,8 @@ def apply_controller_decision(task: dict[str, Any], task_id: str, ts: str, appli
 
 
 def apply_user_control(task: dict[str, Any], task_id: str, ts: str, applied: dict[str, Any]) -> dict[str, Any]:
-    pending = [a for a in (task.get("pending_actions", []) or []) if isinstance(a, dict) and a.get("kind") == "user_control" and a.get("status") != "applied"]
+    all_actions = list(task.get("pending_actions", []) or [])
+    pending = [a for a in all_actions if isinstance(a, dict) and a.get("kind") == "user_control" and a.get("status") != "applied"]
     if not pending:
         applied["note"] = "no pending user control action found"
         return applied
@@ -159,6 +160,8 @@ def apply_user_control(task: dict[str, Any], task_id: str, ts: str, applied: dic
         task["updated_at"] = ts
         control["status"] = "applied"
         control["applied_at"] = ts
+        task["pending_actions"] = [a for a in all_actions if a is not control]
+        task["reconcile"] = {"needed": False, "reason": "", "last_run_at": ts, "status": "clean"}
         save_task(task)
         append_event(task_id, {
             "ts": ts,
@@ -186,6 +189,14 @@ def apply_user_control(task: dict[str, Any], task_id: str, ts: str, applied: dic
     task["updated_at"] = ts
     control["status"] = "applied"
     control["applied_at"] = ts
+    task["pending_actions"] = [a for a in all_actions if a is not control]
+    remaining_pending = [a for a in task["pending_actions"] if isinstance(a, dict) and a.get("status") != "applied"]
+    task["reconcile"] = {
+        "needed": bool(remaining_pending),
+        "reason": "pending_actions_remaining" if remaining_pending else "",
+        "last_run_at": ts,
+        "status": "pending" if remaining_pending else "clean",
+    }
     save_task(task)
     append_event(task_id, {
         "ts": ts,

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from copy import deepcopy
@@ -87,6 +88,33 @@ def has_delivery_binding(task: dict[str, Any]) -> bool:
     return False
 
 
+def infer_delivery_binding() -> dict[str, Any] | None:
+    channel = os.environ.get("OPENCLAW_CHANNEL") or os.environ.get("CHANNEL")
+    account_id = os.environ.get("OPENCLAW_ACCOUNT_ID") or os.environ.get("ACCOUNT_ID") or "default"
+    target = os.environ.get("OPENCLAW_CHAT_ID") or os.environ.get("CHAT_ID") or os.environ.get("OPENCLAW_TARGET")
+    if not channel or not target:
+        return None
+    surface = os.environ.get("OPENCLAW_SURFACE") or "active-chat"
+    return {
+        "kind": "delivery_binding",
+        "channel": channel,
+        "account_id": account_id,
+        "target": target,
+        "surface": surface,
+        "note": "auto-bound from active OpenClaw chat/session context",
+    }
+
+
+def maybe_add_delivery_binding(task: dict[str, Any]) -> bool:
+    if has_delivery_binding(task):
+        return False
+    binding = infer_delivery_binding()
+    if not binding:
+        return False
+    task.setdefault("artifacts", []).append(binding)
+    return True
+
+
 def maybe_send_now(task_id: str, event_type: str, force: bool = False) -> None:
     task = load_snapshot(task_id)
     if not has_delivery_binding(task):
@@ -139,6 +167,7 @@ def cmd_create(args: argparse.Namespace) -> int:
         "idempotency_ledger": parse_json_arg(args.idempotency_ledger, {}),
         "reconcile": parse_json_arg(args.reconcile, {"needed": False, "reason": "", "last_run_at": None, "status": "idle"}),
     }
+    auto_bound = maybe_add_delivery_binding(data)
     write_snapshot(data)
     append_event(args.task_id, {
         "ts": ts,
@@ -146,7 +175,7 @@ def cmd_create(args: argparse.Namespace) -> int:
         "task_id": args.task_id,
         "phase": args.phase,
         "status": "ok",
-        "details": {"title": args.title, "goal": args.goal},
+        "details": {"title": args.title, "goal": args.goal, "auto_bound_delivery": auto_bound},
     })
     append_progress(args.task_id, f"task created: {args.title}")
     print(json.dumps(data, indent=2))

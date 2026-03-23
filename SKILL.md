@@ -79,11 +79,13 @@ If the user pauses, stops, or steers the task:
 ### 5. Resume deliberately
 
 After interruption or reset:
-- load the snapshot
-- review recent events
-- verify the last concrete step
-- use `scripts/task_resume_bootstrap.py` for restart analysis
+- prefer the explicit user-facing recovery move: **"continue this"**
+- use `scripts/task_continue.py` to select the most relevant durable task and resume it intelligently
+- review recent events and verify the last concrete step before any non-trivial follow-through
+- use `scripts/task_resume_bootstrap.py` for restart analysis when you need to inspect the decision surface directly
 - use `scripts/task_resume_apply.py` only for clearly low-risk follow-through
+
+The intended model is **smart resume after reset**, not endless ambient scheduler theater.
 
 ### 6. Verify before completion
 
@@ -120,6 +122,7 @@ Read only what the current task needs:
 
 Use these directly:
 - `scripts/task_ctl.py` — create/update/show/progress/event/control durable tasks
+- `scripts/task_continue.py` — smart user-facing "continue this" recovery after reset/interruption
 - `scripts/task_resume_bootstrap.py` — analyze resumability after interruption
 - `scripts/task_resume_apply.py` — apply low-risk resume follow-through
 - `scripts/task_reconcile.py` — reconcile pending/idempotent action state
