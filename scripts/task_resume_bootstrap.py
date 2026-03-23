@@ -95,6 +95,10 @@ def classify_task(task: dict[str, Any]) -> tuple[str, list[str], dict[str, int]]
     if counts["dropped_lines"]:
         reasons.append(f"{counts['dropped_lines']} dropped orchestration line(s)")
         return "needs_attention", reasons, counts
+    pending_user = [a for a in (task.get("pending_actions", []) or []) if isinstance(a, dict) and a.get("kind") == "user_control" and a.get("status") != "applied"]
+    if pending_user:
+        reasons.append(f"{len(pending_user)} pending user control action(s)")
+        return "needs_attention", reasons, counts
     if reconcile.get("needed"):
         reasons.append("reconcile still needed")
         return "needs_attention", reasons, counts
@@ -137,6 +141,12 @@ def recommend_action(task: dict[str, Any], classification: str, reasons: list[st
             return {
                 "action": "repair_orchestration_line",
                 "summary": "Repair dropped orchestration line metadata before resuming execution.",
+            }
+        pending_user = [a for a in (task.get("pending_actions", []) or []) if isinstance(a, dict) and a.get("kind") == "user_control" and a.get("status") != "applied"]
+        if pending_user:
+            return {
+                "action": "user_control_pending",
+                "summary": "Apply or acknowledge the pending user control request before resuming execution.",
             }
         if counts["attention_lines"] > 0:
             return {
@@ -201,6 +211,12 @@ def build_resume_plan(task: dict[str, Any], classification: str, recommendation:
             "inspect_waiting_lines",
             "record_controller_decision",
             "resume_controller_flow",
+        ]
+    elif recommendation["action"] == "user_control_pending":
+        plan["steps"] = [
+            "load_task_snapshot",
+            "acknowledge_user_control",
+            "apply_or_pause_for_user_control",
         ]
     elif recommendation["action"] == "repair_orchestration_line":
         plan["steps"] = [

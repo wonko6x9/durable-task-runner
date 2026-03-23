@@ -61,6 +61,13 @@ def main() -> int:
         action_id = action.get("id") or action.get("action_id") or "unknown"
         idem = action.get("idempotency_key") or action_id
         state = action_states.get(action_id, {})
+        if action.get("kind") == "user_control":
+            if action.get("status") == "applied":
+                findings.append({"action_id": action_id, "result": "user_control_already_applied"})
+                continue
+            cleaned_pending.append(action)
+            findings.append({"action_id": action_id, "result": "user_control_pending"})
+            continue
         if idem in idempotency:
             findings.append({"action_id": action_id, "result": "already_applied_via_idempotency_ledger"})
             if state:

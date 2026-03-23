@@ -32,6 +32,8 @@ INCLUDE = [
     "scripts/task_install_tick_cron.sh",
     "scripts/task_maybe_send_now.py",
     "scripts/task_reconcile.py",
+    "scripts/task_user_steer.py",
+    "scripts/task_control_reply.py",
     "scripts/task_report.py",
     "scripts/task_resume_apply.py",
     "scripts/task_resume_bootstrap.py",

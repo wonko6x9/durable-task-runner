@@ -64,6 +64,12 @@
 - Default timed status cadence should be 60 seconds unless a task explicitly overrides it.
 - Rationale: five minutes is too sleepy for active long-running work; one minute is frequent enough to prove liveness without becoming ridiculous.
 
+### Decision: durable should continue by default once started
+- After a durable task is started, the system should keep driving it toward completion without waiting for fresh human permission at every boundary.
+- Legitimate stop conditions are narrow: explicit user pause/stop/edit intervention, a hard blocker, or a safety/risk boundary that genuinely requires review.
+- Resume/bootstrap/controller logic should therefore bias toward continued execution, not passive reporting.
+- Rationale: durable that merely preserves state but quietly stalls is bookkeeping, not operations.
+
 ### Decision: prototype validation must include a non-bootstrap task
 - Dogfooding only on the bootstrap task is necessary but insufficient.
 - Before calling the prototype credible, validate restart/apply behavior on at least one separate durable task with its own state files.
