@@ -32,6 +32,24 @@ def rm(task_id: str) -> None:
 def main() -> int:
     results: dict[str, object] = {}
 
+    # 0) resumable running tasks should ask before resuming after reset by default
+    task0 = 'reliability-ask-before-resume'
+    rm(task0)
+    run(
+        'python3', str(SCRIPTS / 'task_ctl.py'), 'create', task0,
+        '--title', 'Ask before resume',
+        '--goal', 'Regression test',
+        '--desired-state', 'running',
+        '--phase', 'test',
+        '--next-step', 'resume main execution'
+    )
+    boot0 = json.loads(run('python3', str(SCRIPTS / 'task_resume_bootstrap.py'), '--task-id', task0, '--plan').stdout)
+    item0 = boot0['tasks'][0]
+    assert item0['classification'] == 'resumable', item0
+    assert item0['recommendation']['action'] == 'ask_to_resume', item0
+    assert 'Do you want me to continue' in item0['recommendation']['prompt'], item0
+    results['ask_before_resume'] = item0['recommendation']
+
     # 1) paused classification must outrank attention-lines
     task1 = 'reliability-paused-vs-attention'
     rm(task1)

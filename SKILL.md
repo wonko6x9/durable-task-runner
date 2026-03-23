@@ -86,6 +86,7 @@ After interruption or reset:
 - use `scripts/task_resume_apply.py` only for clearly low-risk follow-through
 
 The intended model is **smart resume after reset**, not endless ambient scheduler theater.
+By default, bootstrap should prefer **asking whether to continue** after reset/interruption; explicit user intent like "continue this" is what should flip the task back into active execution.
 
 ### 6. Verify before completion
 

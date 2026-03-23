@@ -144,8 +144,12 @@ python3 scripts/task_continue.py
 That command:
 - finds the most relevant durable task
 - runs bootstrap classification
+- honors explicit user intent to continue the task now
 - applies only low-risk resume follow-through
 - tells you what it resumed and why
+
+By default, raw bootstrap analysis now prefers an explicit prompt after reset/interruption:
+- *"I found an interrupted durable task. Do you want me to continue it from the last safe step?"*
 
 You can also target a specific task:
 

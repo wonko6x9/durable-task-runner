@@ -224,6 +224,10 @@ def apply_task(plan_item: dict[str, Any]) -> dict[str, Any]:
         "note": "",
     }
 
+    if action == "ask_to_resume":
+        applied["note"] = "resume requires explicit user confirmation"
+        return applied
+
     if action in {"resume_active_line", "resume_main_flow"}:
         return apply_resume_flow(task, task_id, ts, action, applied)
 
