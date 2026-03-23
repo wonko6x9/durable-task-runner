@@ -9,6 +9,7 @@ This repo is the development/workbench version of the skill. It includes dogfood
 - persists task state to disk instead of relying on chat memory
 - tracks milestones, progress, events, and verification
 - survives resets with smart resume/bootstrap helpers
+- supports an explicit **"continue this"** recovery model after interruption
 - supports pause / stop / steer controls
 - supports thin controller/worker subagent orchestration
 - renders compact status output for longer-running work
@@ -187,6 +188,8 @@ Recommended early-release posture:
 - tone: working early release, not fake-1.0 triumphalism
 - publish input: `dist/durable-task-runner`
 - keep the version/release notes honest to the actual tagged state of the repo
+- describe the core promise as **reset-safe durable state + explicit smart recovery**, not as an always-on unattended scheduler
+- treat recurring timed ticks as optional operational extras, not the primary value proposition
 
 ## Provenance
 

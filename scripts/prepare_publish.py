@@ -29,6 +29,7 @@ INCLUDE = [
     "references/subagent-return-protocol.md",
     "references/task-schema.md",
     "scripts/task_ctl.py",
+    "scripts/task_continue.py",
     "scripts/task_install_tick_cron.sh",
     "scripts/task_maybe_send_now.py",
     "scripts/task_reconcile.py",

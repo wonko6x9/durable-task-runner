@@ -1,6 +1,6 @@
 ---
 name: durable-task-runner
-description: Run long-running, multi-step work in OpenClaw without losing it to resets: durable state, progress updates, reset-safe resume, verification before completion, and optional subagent orchestration. Use when work spans multiple phases, must survive agent or gateway resets, or should not depend on ad-hoc chat memory.
+description: Run long-running, multi-step work in OpenClaw without losing it to resets: durable state, progress updates, smart "continue this" recovery, verification before completion, and optional subagent orchestration. Use when work spans multiple phases, must survive agent or gateway resets, or should not depend on ad-hoc chat memory. Best fit for users who want explicit recovery after interruption rather than fragile background scheduler setup.
 ---
 
 Use this skill to run long work like an orchestrator, not like a goldfish.

@@ -1,6 +1,6 @@
 # durable-task-runner
 
-Run long-running, multi-step work in OpenClaw without losing it to resets: durable state, progress updates, reset-safe resume, and optional subagent orchestration.
+Run long-running, multi-step work in OpenClaw without losing it to resets: durable state, progress updates, smart "continue this" recovery, and optional subagent orchestration.
 
 This repo is the development/workbench version of the skill. It includes dogfooding artifacts, project-history docs, and helper scripts used to build and test the public skill.
 
@@ -8,7 +8,8 @@ This repo is the development/workbench version of the skill. It includes dogfood
 
 - persists task state to disk instead of relying on chat memory
 - tracks milestones, progress, events, and verification
-- survives resets with resume/bootstrap helpers
+- survives resets with smart resume/bootstrap helpers
+- supports an explicit **"continue this"** recovery model after interruption
 - supports pause / stop / steer controls
 - supports thin controller/worker subagent orchestration
 - renders compact status output for longer-running work
@@ -24,6 +25,7 @@ In practice, the runner:
 - asks the user for a few key blanks when needed, then drives the rest through durable state and helper scripts
 - uses planning, checkpoints, verification, and resume logic to keep projects moving toward completion
 - treats robustness and continued real-world testing as ongoing goals of the framework itself
+- refuses to silently leave ordinary tasks in a fake `running` state forever; tasks without an executable continuation hook are reclassified/pause-cleaned instead of generating endless liveness theater
 
 The current priority is practical rather than grandiose: get projects to finish reliably. Industry-standard process ideas are used because they provide a stronger architecture for that than ad-hoc chat memory alone.
 
@@ -40,7 +42,7 @@ The bars are intended to be real operational metrics, but not fake precision:
 
 So the bars are meaningful, but they are still model-based. They are best treated as liveness/progress indicators grounded in explicit milestone state, not as earned-value accounting or mathematically exact completion truth.
 
-By default, reporting stays low-noise and milestone-oriented. It can also be configured for more regular timed updates, higher-visibility operational reporting, or quieter completion-focused behavior when that better fits the job.
+By default, reporting stays low-noise and milestone-oriented. The intended operating model is event-driven progress plus smart recovery after resets; recurring timed updates are optional, not the center of the design.
 
 ## Repository layout
 
@@ -116,9 +118,9 @@ This skill is intentionally stateful.
 
 What it does locally:
 - writes task snapshots, event logs, and progress logs under `state/tasks/`
-- may print or install a recurring cron entry if you run `scripts/task_install_tick_cron.sh --apply`
 - can emit live updates through OpenClaw when a task uses delivery method `openclaw`
 - can coordinate subagent worker lanes through the `task_subagent_*` helpers
+- supports explicit post-reset recovery via `scripts/task_continue.py`
 
 What it does **not** do by itself:
 - it does not ask for API keys directly
@@ -127,19 +129,37 @@ What it does **not** do by itself:
 
 Practical caution:
 - do not use plaintext task state for secrets unless you control and secure the underlying storage appropriately
-- review cron usage before enabling recurring ticks on a real machine
 - review subagent flows if you plan to use worker lanes in higher-trust environments
+- recurring ticks are optional; the primary recovery model is explicit smart resume after reset/interruption
 
-## Reporting operation
+## Recovery-first operation
 
-For actual recurring task updates, run:
+The primary model is **explicit smart recovery**, not host-specific scheduler plumbing.
+
+After a reboot, reset, or interrupted long task, the intended user move is:
 
 ```bash
-python3 scripts/task_tick_all.py
+python3 scripts/task_continue.py
 ```
 
-That is the operational runner that scans all running tasks with delivery bindings and sends due status messages.
+That command:
+- finds the most relevant durable task
+- runs bootstrap classification
+- honors explicit user intent to continue the task now
+- applies only low-risk resume follow-through
+- tells you what it resumed and why
+
+By default, raw bootstrap analysis now prefers an explicit prompt after reset/interruption:
+- *"I found an interrupted durable task. Do you want me to continue it from the last safe step?"*
+
+You can also target a specific task:
+
+```bash
+python3 scripts/task_continue.py --task-id <task-id>
+```
+
 Immediate breadcrumbs are emitted automatically on meaningful task transitions when a task has a delivery binding.
+If a task is still marked `running` but has no executable continuation hook, the sweep now pauses/reclassifies it instead of emitting endless misleading idle-heartbeat noise.
 
 Delivery bindings now support safer explicit modes:
 - `openclaw` — live message delivery through OpenClaw
@@ -147,12 +167,20 @@ Delivery bindings now support safer explicit modes:
 - `noop` — render but do not deliver
 - `log-only` — record send attempts in durable task history without external delivery
 
-For recurring operation on a real machine, use the helper below to print or install a cron entry:
+Context-pressure guardrails are available via `scripts/task_context_guard.py`:
+- below 45%: no action
+- at 45%+: write a prepare/checkpoint breadcrumb
+- at 50%+: pause the task, queue immediate post-reset resume, and emit a machine-readable handoff payload so the surrounding runtime can reset and continue cleanly
+
+Optional recurring timed updates still exist for environments that want them:
 
 ```bash
+python3 scripts/task_tick_all.py
 scripts/task_install_tick_cron.sh --print
 scripts/task_install_tick_cron.sh --apply
 ```
+
+But that is now an optional layer, not the center of the product promise.
 
 ## ClawHub publish shape
 
@@ -160,6 +188,8 @@ Recommended early-release posture:
 - tone: working early release, not fake-1.0 triumphalism
 - publish input: `dist/durable-task-runner`
 - keep the version/release notes honest to the actual tagged state of the repo
+- describe the core promise as **reset-safe durable state + explicit smart recovery**, not as an always-on unattended scheduler
+- treat recurring timed ticks as optional operational extras, not the primary value proposition
 
 ## Provenance
 

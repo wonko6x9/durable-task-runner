@@ -4,14 +4,21 @@
 
 Release focus:
 - make the ClawHub bundle smaller, clearer, and easier to trust at a glance
+- re-center the product on reset-safe durable recovery instead of scheduler theater
 - remove development-only smoke scripts from the public bundle
 - add explicit security / operational notes to public docs
 - keep the source repo useful for development while making the published skill more reviewable
 
 Expected notes:
 - smoke-test scripts remain in the source repo but are excluded from the publish bundle
-- public docs explain plaintext task state, cron installation, delivery modes, and subagent control surface more directly
+- public docs explain plaintext task state, delivery modes, and subagent control surface more directly
+- new `task_continue.py` provides the primary user-facing **"continue this"** recovery path after interruption/reset
+- bootstrap can now prefer asking whether to resume interrupted work instead of blindly continuing
+- public bundle now includes `task_continue.py`
 - ClawHub-facing package is more intentional about what end users actually need to install/use
+- stale ordinary `running` tasks are now pause-cleaned instead of looping forever with fake continuation heartbeats
+- tick sweeps avoid sending misleading recurring bars for tasks just reclassified out of the active lane
+- added `task_context_guard.py` to make the 45% prepare / 50% hard-stop-reset-resume policy scriptable instead of just aspirational
 
 ## v0.1.2
 

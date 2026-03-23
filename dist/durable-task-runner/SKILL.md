@@ -1,6 +1,6 @@
 ---
 name: durable-task-runner
-description: Run long-running, multi-step work in OpenClaw without losing it to resets: durable state, progress updates, reset-safe resume, verification before completion, and optional subagent orchestration. Use when work spans multiple phases, must survive agent or gateway resets, or should not depend on ad-hoc chat memory.
+description: Run long-running, multi-step work in OpenClaw without losing it to resets: durable state, progress updates, smart "continue this" recovery, verification before completion, and optional subagent orchestration. Use when work spans multiple phases, must survive agent or gateway resets, or should not depend on ad-hoc chat memory. Best fit for users who want explicit recovery after interruption rather than fragile background scheduler setup.
 ---
 
 Use this skill to run long work like an orchestrator, not like a goldfish.
@@ -79,11 +79,14 @@ If the user pauses, stops, or steers the task:
 ### 5. Resume deliberately
 
 After interruption or reset:
-- load the snapshot
-- review recent events
-- verify the last concrete step
-- use `scripts/task_resume_bootstrap.py` for restart analysis
+- prefer the explicit user-facing recovery move: **"continue this"**
+- use `scripts/task_continue.py` to select the most relevant durable task and resume it intelligently
+- review recent events and verify the last concrete step before any non-trivial follow-through
+- use `scripts/task_resume_bootstrap.py` for restart analysis when you need to inspect the decision surface directly
 - use `scripts/task_resume_apply.py` only for clearly low-risk follow-through
+
+The intended model is **smart resume after reset**, not endless ambient scheduler theater.
+By default, bootstrap should prefer **asking whether to continue** after reset/interruption; explicit user intent like "continue this" is what should flip the task back into active execution.
 
 ### 6. Verify before completion
 
@@ -120,6 +123,7 @@ Read only what the current task needs:
 
 Use these directly:
 - `scripts/task_ctl.py` — create/update/show/progress/event/control durable tasks
+- `scripts/task_continue.py` — smart user-facing "continue this" recovery after reset/interruption
 - `scripts/task_resume_bootstrap.py` — analyze resumability after interruption
 - `scripts/task_resume_apply.py` — apply low-risk resume follow-through
 - `scripts/task_reconcile.py` — reconcile pending/idempotent action state

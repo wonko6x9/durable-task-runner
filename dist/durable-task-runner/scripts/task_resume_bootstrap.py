@@ -26,6 +26,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 STATE_DIR = ROOT / "state" / "tasks"
 SCRIPT_DIR = ROOT / "scripts"
+CONFIG_PATH = ROOT / "config" / "defaults.json"
 
 
 def now_iso() -> str:
@@ -36,6 +37,10 @@ def load_json(path: Path, default: Any = None) -> Any:
     if not path.exists():
         return default
     return json.loads(path.read_text())
+
+
+def load_defaults() -> dict[str, Any]:
+    return load_json(CONFIG_PATH, {}) or {}
 
 
 def iter_tasks() -> list[tuple[Path, dict[str, Any]]]:
@@ -92,18 +97,6 @@ def classify_task(task: dict[str, Any]) -> tuple[str, list[str], dict[str, int]]
             if status in {"autopilot", "handoff"} and next_role in {None, "", "none"}:
                 counts["dropped_lines"] += 1
 
-    if counts["dropped_lines"]:
-        reasons.append(f"{counts['dropped_lines']} dropped orchestration line(s)")
-        return "needs_attention", reasons, counts
-    if reconcile.get("needed"):
-        reasons.append("reconcile still needed")
-        return "needs_attention", reasons, counts
-    if counts["attention_lines"]:
-        reasons.append(f"{counts['attention_lines']} orchestration line(s) awaiting controller action")
-        return "needs_attention", reasons, counts
-    if desired_state == "running":
-        reasons.append("desired_state=running")
-        return "resumable", reasons, counts
     if desired_state == "paused":
         reasons.append("desired_state=paused")
         return "paused", reasons, counts
@@ -116,13 +109,37 @@ def classify_task(task: dict[str, Any]) -> tuple[str, list[str], dict[str, int]]
     if desired_state == "failed":
         reasons.append("desired_state=failed")
         return "failed", reasons, counts
+    if counts["dropped_lines"]:
+        reasons.append(f"{counts['dropped_lines']} dropped orchestration line(s)")
+        return "needs_attention", reasons, counts
+    pending_user = [a for a in (task.get("pending_actions", []) or []) if isinstance(a, dict) and a.get("kind") == "user_control" and a.get("status") != "applied"]
+    if pending_user:
+        reasons.append(f"{len(pending_user)} pending user control action(s)")
+        return "needs_attention", reasons, counts
+    if reconcile.get("needed"):
+        reasons.append("reconcile still needed")
+        return "needs_attention", reasons, counts
+    if counts["attention_lines"]:
+        reasons.append(f"{counts['attention_lines']} orchestration line(s) awaiting controller action")
+        return "needs_attention", reasons, counts
+    if desired_state == "running":
+        reasons.append("desired_state=running")
+        return "resumable", reasons, counts
     reasons.append(f"unrecognized desired_state={desired_state}")
     return "needs_attention", reasons, counts
 
 
 def recommend_action(task: dict[str, Any], classification: str, reasons: list[str], counts: dict[str, int]) -> dict[str, Any]:
+    defaults = load_defaults()
+    control_cfg = defaults.get("control", {}) or {}
     next_step = task.get("next_step", "") or "n/a"
     if classification == "resumable":
+        if control_cfg.get("ask_before_resuming_after_reset", True):
+            return {
+                "action": "ask_to_resume",
+                "summary": f"Ask whether to resume this task after reset/interruption; next step if resumed: {next_step}",
+                "prompt": f"I found an interrupted durable task: {task.get('title', task.get('task_id'))}. Do you want me to continue it from the last safe step?",
+            }
         if counts["active_lines"] > 0:
             return {
                 "action": "resume_active_line",
@@ -137,6 +154,12 @@ def recommend_action(task: dict[str, Any], classification: str, reasons: list[st
             return {
                 "action": "repair_orchestration_line",
                 "summary": "Repair dropped orchestration line metadata before resuming execution.",
+            }
+        pending_user = [a for a in (task.get("pending_actions", []) or []) if isinstance(a, dict) and a.get("kind") == "user_control" and a.get("status") != "applied"]
+        if pending_user:
+            return {
+                "action": "user_control_pending",
+                "summary": "Apply or acknowledge the pending user control request before resuming execution.",
             }
         if counts["attention_lines"] > 0:
             return {
@@ -182,7 +205,14 @@ def build_resume_plan(task: dict[str, Any], classification: str, recommendation:
         "next_step": next_step,
         "steps": [],
     }
-    if recommendation["action"] == "resume_active_line":
+    if recommendation["action"] == "ask_to_resume":
+        plan["steps"] = [
+            "load_task_snapshot",
+            "summarize_last_safe_step",
+            "ask_user_whether_to_continue",
+        ]
+        plan["resume_prompt"] = recommendation.get("prompt", "Do you want me to continue this durable task?")
+    elif recommendation["action"] == "resume_active_line":
         plan["steps"] = [
             "load_task_snapshot",
             "confirm_reconcile_clean",
@@ -201,6 +231,12 @@ def build_resume_plan(task: dict[str, Any], classification: str, recommendation:
             "inspect_waiting_lines",
             "record_controller_decision",
             "resume_controller_flow",
+        ]
+    elif recommendation["action"] == "user_control_pending":
+        plan["steps"] = [
+            "load_task_snapshot",
+            "acknowledge_user_control",
+            "apply_or_pause_for_user_control",
         ]
     elif recommendation["action"] == "repair_orchestration_line":
         plan["steps"] = [

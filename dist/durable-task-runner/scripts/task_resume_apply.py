@@ -145,6 +145,73 @@ def apply_controller_decision(task: dict[str, Any], task_id: str, ts: str, appli
     return applied
 
 
+def apply_user_control(task: dict[str, Any], task_id: str, ts: str, applied: dict[str, Any]) -> dict[str, Any]:
+    all_actions = list(task.get("pending_actions", []) or [])
+    pending = [a for a in all_actions if isinstance(a, dict) and a.get("kind") == "user_control" and a.get("status") != "applied"]
+    if not pending:
+        applied["note"] = "no pending user control action found"
+        return applied
+    control = pending[-1]
+    intent = control.get("intent")
+    msg = control.get("message", "")
+    if control.get("boundary") == "deferred":
+        task["desired_state"] = "paused"
+        task["operator_note"] = msg
+        task["updated_at"] = ts
+        control["status"] = "applied"
+        control["applied_at"] = ts
+        task["pending_actions"] = [a for a in all_actions if a is not control]
+        task["reconcile"] = {"needed": False, "reason": "", "last_run_at": ts, "status": "clean"}
+        save_task(task)
+        append_event(task_id, {
+            "ts": ts,
+            "type": "pause_requested",
+            "task_id": task_id,
+            "phase": task.get("phase", ""),
+            "status": "ok",
+            "details": {"source": "pending_user_control", "intent": intent, "message": msg},
+        })
+        append_progress(task_id, f"resume apply: paused for pending user control ({intent})")
+        applied["applied"] = True
+        applied["note"] = f"paused for pending user control ({intent})"
+        return applied
+    if intent == "stop":
+        task["desired_state"] = "stopped"
+        task["operator_note"] = msg
+    elif intent == "pause":
+        task["desired_state"] = "paused"
+        task["operator_note"] = msg
+    elif intent == "resume":
+        task["desired_state"] = "running"
+        task["steering_note"] = msg
+    else:
+        task["steering_note"] = msg
+    task["updated_at"] = ts
+    control["status"] = "applied"
+    control["applied_at"] = ts
+    task["pending_actions"] = [a for a in all_actions if a is not control]
+    remaining_pending = [a for a in task["pending_actions"] if isinstance(a, dict) and a.get("status") != "applied"]
+    task["reconcile"] = {
+        "needed": bool(remaining_pending),
+        "reason": "pending_actions_remaining" if remaining_pending else "",
+        "last_run_at": ts,
+        "status": "pending" if remaining_pending else "clean",
+    }
+    save_task(task)
+    append_event(task_id, {
+        "ts": ts,
+        "type": "user_control_applied",
+        "task_id": task_id,
+        "phase": task.get("phase", ""),
+        "status": "ok",
+        "details": {"intent": intent, "message": msg},
+    })
+    append_progress(task_id, f"resume apply: applied pending user control ({intent})")
+    applied["applied"] = True
+    applied["note"] = f"applied pending user control ({intent})"
+    return applied
+
+
 def apply_task(plan_item: dict[str, Any]) -> dict[str, Any]:
     task_id = plan_item["task_id"]
     task = load_task(task_id)
@@ -157,11 +224,18 @@ def apply_task(plan_item: dict[str, Any]) -> dict[str, Any]:
         "note": "",
     }
 
+    if action == "ask_to_resume":
+        applied["note"] = "resume requires explicit user confirmation"
+        return applied
+
     if action in {"resume_active_line", "resume_main_flow"}:
         return apply_resume_flow(task, task_id, ts, action, applied)
 
     if action == "controller_decision_needed":
         return apply_controller_decision(task, task_id, ts, applied)
+
+    if action == "user_control_pending":
+        return apply_user_control(task, task_id, ts, applied)
 
     applied["note"] = "no low-risk auto-apply path for this action"
     return applied
