@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
-Run timed status ticks across all eligible durable tasks.
+Run recurring maintenance across all eligible durable tasks.
 
 Purpose:
 - provide the missing operational runner for recurring status delivery
+- drive lightweight continuation checks for running tasks
 - scan all task snapshots
-- skip tasks that are not active or do not have delivery bindings
+- skip tasks that are not active or do not have delivery bindings when reporting
 - only send when the task is actually due
 - treat per-task delivery/parser failures as task-local errors instead of aborting the full sweep
+- do not emit misleading recurring bars for tasks that were just reclassified as stale/paused
 """
 
 from __future__ import annotations
@@ -94,6 +96,7 @@ def main() -> int:
     eligible = 0
     sent = 0
     errors = 0
+    continued = 0
     results = []
 
     for task in iter_tasks():
@@ -102,28 +105,69 @@ def main() -> int:
         if task.get("desired_state") != "running":
             results.append({"task_id": task_id, "status": "skipped", "reason": "not_running"})
             continue
-        if not has_delivery_binding(task):
-            results.append({"task_id": task_id, "status": "skipped", "reason": "no_delivery_binding"})
+
+        try:
+            cont = run_json("python3", str(SCRIPT_DIR / "task_auto_continue.py"), task_id)
+            continued += 1
+        except subprocess.CalledProcessError as exc:
+            errors += 1
+            results.append({
+                "task_id": task_id,
+                "status": "error",
+                "reason": "auto_continue_failed",
+                "command": exc.cmd,
+                "returncode": exc.returncode,
+                "stdout": (exc.stdout or "").strip(),
+                "stderr": (exc.stderr or "").strip(),
+            })
             continue
+        except Exception as exc:
+            errors += 1
+            results.append({
+                "task_id": task_id,
+                "status": "error",
+                "reason": "auto_continue_exception",
+                "message": str(exc),
+            })
+            continue
+
+        result = {"task_id": task_id, "continuation": cont}
+        cont_status = cont.get("status")
+        if cont_status in {"paused", "standby", "skipped"}:
+            result.update({"status": "skipped", "reason": cont.get("reason", cont_status)})
+            results.append(result)
+            continue
+
+        refreshed = load_json(STATE_DIR / f"{task_id}.json", task)
+        if refreshed.get("desired_state") != "running":
+            result.update({"status": "skipped", "reason": "no_longer_running"})
+            results.append(result)
+            continue
+
+        if not has_delivery_binding(refreshed):
+            result.update({"status": "skipped", "reason": "no_delivery_binding"})
+            results.append(result)
+            continue
+
         eligible += 1
         try:
             due = run_json("python3", str(SCRIPT_DIR / "task_should_report.py"), task_id)
             if not due.get("due"):
-                results.append({"task_id": task_id, "status": "skipped", "reason": due.get("reason", "not_due")})
+                result.update({"status": "skipped", "reason": due.get("reason", "not_due")})
+                results.append(result)
                 continue
             delivery = run_json("python3", str(SCRIPT_DIR / "task_send_status.py"), task_id)
             sent += 1
-            results.append({
-                "task_id": task_id,
+            result.update({
                 "status": "sent",
                 "reason": due.get("reason", "due"),
                 "line": delivery.get("line", ""),
                 "method": (delivery.get("delivery") or {}).get("method", "unknown"),
             })
+            results.append(result)
         except subprocess.CalledProcessError as exc:
             errors += 1
-            results.append({
-                "task_id": task_id,
+            result.update({
                 "status": "error",
                 "reason": "command_failed",
                 "command": exc.cmd,
@@ -131,18 +175,20 @@ def main() -> int:
                 "stdout": (exc.stdout or "").strip(),
                 "stderr": (exc.stderr or "").strip(),
             })
+            results.append(result)
         except Exception as exc:
             errors += 1
-            results.append({
-                "task_id": task_id,
+            result.update({
                 "status": "error",
                 "reason": type(exc).__name__,
                 "message": str(exc),
             })
+            results.append(result)
 
     print(json.dumps({
         "scanned": scanned,
         "eligible": eligible,
+        "continued": continued,
         "sent": sent,
         "errors": errors,
         "results": results,

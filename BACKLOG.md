@@ -52,7 +52,7 @@ New work discovered during execution can be added here without pretending the or
 ## Deferred beyond 0.1.1
 
 - [todo] Harden unattended continuation so once a durable project starts it keeps moving to completion by default unless the user pauses/stops/edits it or a real blocker is recorded; durability must mean continuation, not just resumability
-- [todo] Add hot-context compaction guardrails: when active durable work reaches roughly 45% session context (hard stop by 50%), checkpoint durable state, write any needed memory, and hand off/reset cleanly so long-running projects survive context pressure without relying on operator vigilance
+- [todo] Add hot-context compaction guardrails: when active durable work reaches roughly 45% session context, checkpoint durable state and prepare clean handoff; at 50% hard stop, automatically pause the project, record state durably, initiate a session reset, and resume/continue the project immediately from durable state when the new session comes up
 - [done] Add a lightweight release checklist so each release consistently updates status/docs, verifies the publish bundle, and tags/publishes from a known-good state
 - [done] Keep a concise release history / changelog so post-0.1.x changes are understandable without spelunking commit logs
 - [done] Refresh release/status docs as part of each release so `STATUS.md` and publish-facing notes do not drift behind actual tagged versions

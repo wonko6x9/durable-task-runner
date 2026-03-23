@@ -66,9 +66,15 @@
 
 ### Decision: durable should continue by default once started
 - After a durable task is started, the system should keep driving it toward completion without waiting for fresh human permission at every boundary.
-- Legitimate stop conditions are narrow: explicit user pause/stop/edit intervention, a hard blocker, or a safety/risk boundary that genuinely requires review.
+- Legitimate stop conditions are narrow: explicit user pause/stop/edit intervention, a hard blocker, a safety/risk boundary that genuinely requires review, or detection that the task has no executable continuation hook and is only pretending to be active.
 - Resume/bootstrap/controller logic should therefore bias toward continued execution, not passive reporting.
-- Rationale: durable that merely preserves state but quietly stalls is bookkeeping, not operations.
+- Rationale: durable that merely preserves state but quietly stalls is bookkeeping, not operations; durable that falsely claims to be active is worse.
+
+### Decision: immediate milestone/control updates should suppress near-duplicate timed ticks briefly
+- Important immediate updates (especially milestones/control changes) should always fire.
+- Timed reporting should then respect a short cooldown window — currently 15 seconds — so the user does not get an almost-identical timed ticker right after the immediate one.
+- Cooldown value `0` means disabled: timed ticks should fire whenever otherwise due, regardless of how recently an immediate update happened.
+- Rationale: the goal is visible liveness, not double-tapping the user with duplicate bars.
 
 ### Decision: prototype validation must include a non-bootstrap task
 - Dogfooding only on the bootstrap task is necessary but insufficient.

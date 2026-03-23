@@ -24,12 +24,13 @@ Programmatic reporting cadence and bar-signal cleanup
 - reduce default timed status cadence to 60 seconds
 - tighten ticker math so the current-task bar reflects explicit milestone state rather than narrative/operator feel
 - keep timed status lines compact, programmatic, and clearly separate from human commentary
+- pause-clean stale ordinary tasks that have no executable continuation hook instead of letting them loop forever as fake `running`
 - verify the live/timed path behaves consistently with the new defaults
 
 ## Next step
 
-- finish the ticker/reporting changes
-- run smoke/live verification for the 60-second timed path
+- wire the 50% context hard-stop into the same durability/control path
+- verify resumed-session continuation is immediate after reset
 - update docs/changelog if the behavior change is solid
 
 ## Blockers

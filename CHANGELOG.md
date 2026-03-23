@@ -12,6 +12,8 @@ Expected notes:
 - smoke-test scripts remain in the source repo but are excluded from the publish bundle
 - public docs explain plaintext task state, cron installation, delivery modes, and subagent control surface more directly
 - ClawHub-facing package is more intentional about what end users actually need to install/use
+- stale ordinary `running` tasks are now pause-cleaned instead of looping forever with fake continuation heartbeats
+- tick sweeps avoid sending misleading recurring bars for tasks just reclassified out of the active lane
 
 ## v0.1.2
 

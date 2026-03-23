@@ -24,6 +24,7 @@ In practice, the runner:
 - asks the user for a few key blanks when needed, then drives the rest through durable state and helper scripts
 - uses planning, checkpoints, verification, and resume logic to keep projects moving toward completion
 - treats robustness and continued real-world testing as ongoing goals of the framework itself
+- refuses to silently leave ordinary tasks in a fake `running` state forever; tasks without an executable continuation hook are reclassified/pause-cleaned instead of generating endless liveness theater
 
 The current priority is practical rather than grandiose: get projects to finish reliably. Industry-standard process ideas are used because they provide a stronger architecture for that than ad-hoc chat memory alone.
 
@@ -140,6 +141,7 @@ python3 scripts/task_tick_all.py
 
 That is the operational runner that scans all running tasks with delivery bindings and sends due status messages.
 Immediate breadcrumbs are emitted automatically on meaningful task transitions when a task has a delivery binding.
+If a task is still marked `running` but has no executable continuation hook, the sweep now pauses/reclassifies it instead of emitting endless misleading idle-heartbeat noise.
 
 Delivery bindings now support safer explicit modes:
 - `openclaw` — live message delivery through OpenClaw
