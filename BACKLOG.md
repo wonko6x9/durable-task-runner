@@ -51,10 +51,19 @@ New work discovered during execution can be added here without pretending the or
 
 ## Deferred beyond 0.1.1
 
+- [todo] Add a lightweight release checklist so each release consistently updates status/docs, verifies the publish bundle, and tags/publishes from a known-good state
+- [todo] Keep a concise release history / changelog so post-0.1.x changes are understandable without spelunking commit logs
+- [todo] Refresh release/status docs as part of each release so `STATUS.md` and publish-facing notes do not drift behind actual tagged versions
 - [todo] Auto-bind new durable tasks in the active chat/session so progress delivery works without manual delivery-binding setup
 - [todo] Make recurring tick execution ambient by default in suitable environments instead of requiring the operator to remember cron/timer setup
 - [todo] Add a richer real-world example project/reference walkthrough for new adopters
 - [todo] Expand reporting-mode docs and operator guidance once real usage shows which knobs are actually confusing
+- [todo] Clarify README wording so PMP/Agile/structured sequencing and ITIL-style operational discipline are described as borrowed patterns rather than one flat methodology bucket
+- [todo] Add a strict config reference doc for `config/defaults.json`, including valid values, ranges, defaults, and invalid-value behavior
+- [todo] Add a config validator for `config/defaults.json` that checks shape, types, enums, and numeric ranges with useful path-based errors
+- [todo] Add a safe defaults recovery path: if the active defaults file is missing, repopulate it from stock known-good defaults instead of failing awkwardly
+- [todo] Add a quick reset/revert helper for defaults, with both stock-reset behavior and an optional user-preferred baseline that does not overwrite the canonical stock fallback
 - [todo] Reassess progress-bar math after more real-world use and tighten the metric so it stays grounded in explicit state rather than vague operator feel
 - [todo] Consider weighted milestones / better roll-up rules only if that improves signal without turning reporting into workflow theater
+- [todo] Add optional per-project/per-task config overrides for higher-complexity work when global defaults become too blunt
 - [todo] Consider broader controller/subagent ergonomics only after more real-world use justifies the extra surface area
