@@ -15,7 +15,7 @@
       "3": "regular-operational-updates",
       "4": "high-visibility-operator-mode"
     },
-    "status_update_interval_seconds": 300,
+    "status_update_interval_seconds": 60,
     "timed_status_enabled": true,
     "timed_status_style": "compact-bar",
     "immediate_updates_on_milestone": true,

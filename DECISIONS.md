@@ -55,6 +55,15 @@
 - Leave ambiguous or higher-risk cases as controller/operator decisions.
 - Rationale: the whole point of a durable runner is to keep moving unless there is a good reason not to.
 
+### Decision: durable work should hand off before hot context becomes a cliff
+- Treat roughly 45% session context as the target threshold for checkpoint + handoff preparation on active durable work, with 50% as the hard stop that should trigger a clean reset/handoff path rather than continued accumulation.
+- The durable runner should not depend on operator vigilance for this; the rule belongs in backlog/design as a first-class operational guardrail.
+- Rationale: once the hot context crosses the durability cliff, quality degrades and resets become more brittle. Leaving headroom is cheaper than pretending the cliff is not there.
+
+### Decision: timed durable status should default to once per minute
+- Default timed status cadence should be 60 seconds unless a task explicitly overrides it.
+- Rationale: five minutes is too sleepy for active long-running work; one minute is frequent enough to prove liveness without becoming ridiculous.
+
 ### Decision: prototype validation must include a non-bootstrap task
 - Dogfooding only on the bootstrap task is necessary but insufficient.
 - Before calling the prototype credible, validate restart/apply behavior on at least one separate durable task with its own state files.

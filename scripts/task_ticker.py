@@ -5,8 +5,9 @@ Compact timed status renderer for durable-task-runner.
 Goal:
 - minimal tokens
 - maximum signal
-- suitable for 5-minute heartbeat-style updates regardless of milestone
+- suitable for recurring status delivery regardless of milestone
 - show both current-task progress and overall-project progress
+- remain fully programmatic and independent of human commentary
 """
 
 from __future__ import annotations
@@ -41,6 +42,15 @@ def overall_percent(task: dict[str, Any]) -> int:
     return round(sum(vals) / len(vals))
 
 
+def completed_milestone_count(task: dict[str, Any]) -> int:
+    return sum(1 for m in task.get("milestones", []) if m.get("status") == "done")
+
+
+def milestone_counts(task: dict[str, Any]) -> tuple[int, int]:
+    milestones = task.get("milestones", [])
+    return completed_milestone_count(task), len(milestones)
+
+
 def current_milestone_record(task: dict[str, Any]) -> dict[str, Any] | None:
     for milestone in task.get("milestones", []):
         if milestone.get("status") == "running":
@@ -55,7 +65,10 @@ def current_task_percent(task: dict[str, Any]) -> int:
     milestones = task.get("milestones", [])
     if milestones and all(m.get("status") == "done" for m in milestones):
         return 100
-    return overall_percent(task)
+    done, total = milestone_counts(task)
+    if total:
+        return round((done / total) * 100)
+    return 0
 
 
 def current_milestone(task: dict[str, Any]) -> str:
@@ -74,9 +87,11 @@ def render(task: dict[str, Any]) -> str:
     health = task.get("health", "?")
     ms = current_milestone(task)
     next_step = task.get("next_step", "n/a")
+    done, total = milestone_counts(task)
     return (
         f"task {current_bar} {current_pct:>3}% | "
         f"proj {overall_bar} {overall_pct:>3}% | "
+        f"ms {done}/{total} | "
         f"{phase} | {health} | {ms} | next: {next_step}"
     )
 
