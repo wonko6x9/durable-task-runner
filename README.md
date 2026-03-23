@@ -15,9 +15,9 @@ This repo is the development/workbench version of the skill. It includes dogfood
 
 ## Process model
 
-Durable Task Runner uses a hybrid process model that pulls from the most useful parts of PMP, Agile, structured sequencing where dependencies justify it, and ITIL-style operational discipline.
+Durable Task Runner uses a hybrid process model that borrows useful patterns from Agile, PMP-style milestone/scope thinking, structured sequencing where dependencies justify it, and ITIL-style operational discipline.
 
-The goal is not to bury users in process. The goal is to strengthen the backend framework enough that long work actually finishes, keeps moving across resets/interruption, and stays visible while it is in flight.
+The goal is not to bury users in process or pretend this is one pure framework. The goal is to strengthen the backend architecture enough that long work actually finishes, keeps moving across resets/interruption, and stays visible while it is in flight.
 
 In practice, the runner:
 - scales the amount of process and artifact depth to the size/risk of the task
@@ -134,10 +134,10 @@ scripts/task_install_tick_cron.sh --apply
 
 ## ClawHub publish shape
 
-Recommended first public release posture:
-- version: `0.1.0`
+Recommended early-release posture:
 - tone: working early release, not fake-1.0 triumphalism
 - publish input: `dist/durable-task-runner`
+- keep the version/release notes honest to the actual tagged state of the repo
 
 ## Provenance
 
