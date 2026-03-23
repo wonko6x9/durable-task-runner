@@ -1,6 +1,19 @@
 # Changelog
 
-## v0.1.2 (planned)
+## v0.1.3 (planned)
+
+Release focus:
+- make the ClawHub bundle smaller, clearer, and easier to trust at a glance
+- remove development-only smoke scripts from the public bundle
+- add explicit security / operational notes to public docs
+- keep the source repo useful for development while making the published skill more reviewable
+
+Expected notes:
+- smoke-test scripts remain in the source repo but are excluded from the publish bundle
+- public docs explain plaintext task state, cron installation, delivery modes, and subagent control surface more directly
+- ClawHub-facing package is more intentional about what end users actually need to install/use
+
+## v0.1.2
 
 Release focus:
 - refresh release hygiene and project status so docs match the real repo state

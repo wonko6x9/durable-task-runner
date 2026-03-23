@@ -70,18 +70,18 @@ These are useful in the repo, but should not be shoved directly into a ClawHub p
 - no external Python dependencies; the scripts are stdlib-only
 - OpenClaw runtime/auth is required only for live message delivery paths
 
-## Local development checks
+## Development checks (repo only)
+
+The development repo includes local smoke checks that are intentionally **not** part of the ClawHub publish bundle.
+They are useful for maintainers, not required for normal skill installation/use.
+
+Example repo-local checks:
 
 ```bash
 python3 scripts/task_validation_smoke.py
 python3 scripts/task_core_smoke.py
 python3 scripts/task_tick_all.py
 ```
-
-What they validate:
-- `task_validation_smoke.py` — restart/bootstrap/apply flow on a throwaway non-bootstrap durable task
-- `task_core_smoke.py` — create/update/report/ticker/subagent/restart helper coverage
-- `task_tick_all.py` — recurring due-scan behavior across running tasks with delivery bindings
 
 ## Prepare a clean ClawHub bundle
 
@@ -109,6 +109,26 @@ Or make a copied install:
 ```bash
 ./install.sh --copy
 ```
+
+## Security / operational notes
+
+This skill is intentionally stateful.
+
+What it does locally:
+- writes task snapshots, event logs, and progress logs under `state/tasks/`
+- may print or install a recurring cron entry if you run `scripts/task_install_tick_cron.sh --apply`
+- can emit live updates through OpenClaw when a task uses delivery method `openclaw`
+- can coordinate subagent worker lanes through the `task_subagent_*` helpers
+
+What it does **not** do by itself:
+- it does not ask for API keys directly
+- it does not require external Python packages
+- it does not need network access for local-only reporting modes like `stdout`, `noop`, or `log-only`
+
+Practical caution:
+- do not use plaintext task state for secrets unless you control and secure the underlying storage appropriately
+- review cron usage before enabling recurring ticks on a real machine
+- review subagent flows if you plan to use worker lanes in higher-trust environments
 
 ## Reporting operation
 

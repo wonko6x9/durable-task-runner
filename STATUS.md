@@ -2,7 +2,7 @@
 
 ## Current phase
 
-0.1.2 release prep
+0.1.3 ClawHub hardening
 
 ## Health
 
@@ -10,28 +10,28 @@ healthy
 
 ## Current milestone
 
-Release hygiene + publish prep
+ClawHub reviewability hardening
 
 ## Last checkpoint
 
-- `v0.1.0` is tagged and the post-0.1.0 / 0.1.1 candidate work has been implemented in the repo
-- recent work completed the 0.1.1 publication pass and left the project functionally publish-ready
-- existing backlog already covers the larger deferred feature ideas; the immediate gap before `0.1.2` is release hygiene rather than missing core functionality
-- `BACKLOG.md` has now been refreshed with explicit release-discipline follow-through items (checklist / changelog / status refresh)
-- minimal release-history tracking has been added so version deltas do not live only in commit logs
+- `v0.1.2` is now published and tagged
+- ClawHub review text indicates the package is coherent, but the current bundle still exposes more development/testing surface than ideal for first-glance trust
+- likely low-risk improvement path identified: remove development-only smoke scripts from the public bundle and explain operational/security behavior more directly in public docs
+- release hygiene work from `0.1.2` remains in place (status/changelog/checklist discipline)
 
 ## In-progress work
 
-- refresh project docs so they match actual version history and current release intent
-- prepare honest `0.1.2` publish/tag state instead of leaving the repo frozen in stale `0.1.0` status language
+- trim the published surface area to the scripts/files needed for normal install/use
+- make README/SKILL docs more explicit about plaintext task state, cron behavior, delivery modes, and subagent control surface
+- prepare a cleaner ClawHub-facing `0.1.3`
 
 ## Next step
 
-- verify version/delta for `0.1.2`
-- confirm publish bundle and release notes are honest
-- tag/publish `0.1.2`
+- rebuild the clean bundle without smoke-only scripts
+- verify remaining public files are honest and sufficient
+- publish/tag `0.1.3`
 
 ## Blockers
 
 - none currently confirmed in code/package state
-- if ClawHub publication is desired from this machine, authentication may still need to be refreshed/verified
+- ClawHub review wording may lag slightly behind package cleanup until the new version is analyzed

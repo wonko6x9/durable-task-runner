@@ -54,6 +54,8 @@ New work discovered during execution can be added here without pretending the or
 - [done] Add a lightweight release checklist so each release consistently updates status/docs, verifies the publish bundle, and tags/publishes from a known-good state
 - [done] Keep a concise release history / changelog so post-0.1.x changes are understandable without spelunking commit logs
 - [done] Refresh release/status docs as part of each release so `STATUS.md` and publish-facing notes do not drift behind actual tagged versions
+- [done] Trim development-only smoke scripts out of the ClawHub publish bundle while keeping them in the source repo
+- [done] Add explicit security / operational notes in public docs so ClawHub reviewers do not have to infer core behavior from the code alone
 - [todo] Auto-bind new durable tasks in the active chat/session so progress delivery works without manual delivery-binding setup
 - [todo] Make recurring tick execution ambient by default in suitable environments instead of requiring the operator to remember cron/timer setup
 - [todo] Add a richer real-world example project/reference walkthrough for new adopters
