@@ -1,6 +1,6 @@
 # durable-task-runner
 
-Durable task orchestration for OpenClaw.
+Run long-running, resumable multi-step work in OpenClaw with durable task state, progress reporting, reset-safe resume, and optional subagent orchestration.
 
 This repo is the development/workbench version of the skill. It includes dogfooding artifacts, project-history docs, and helper scripts used to build and test the public skill.
 

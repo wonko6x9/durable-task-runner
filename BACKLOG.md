@@ -58,7 +58,7 @@ New work discovered during execution can be added here without pretending the or
 - [todo] Make recurring tick execution ambient by default in suitable environments instead of requiring the operator to remember cron/timer setup
 - [todo] Add a richer real-world example project/reference walkthrough for new adopters
 - [todo] Expand reporting-mode docs and operator guidance once real usage shows which knobs are actually confusing
-- [todo] Continue README cleanup so public-facing wording stays honest about methodology, release posture, and what belongs to the dev repo versus the publish bundle
+- [todo] Continue README/public-facing copy cleanup so the first lines stay optimized for ClawHub/search while remaining honest about methodology, release posture, and what belongs to the dev repo versus the publish bundle
 - [todo] Add a strict config reference doc for `config/defaults.json`, including valid values, ranges, defaults, and invalid-value behavior
 - [todo] Add a config validator for `config/defaults.json` that checks shape, types, enums, and numeric ranges with useful path-based errors
 - [todo] Add a safe defaults recovery path: if the active defaults file is missing, repopulate it from stock known-good defaults instead of failing awkwardly
