@@ -2,7 +2,7 @@
 
 Run long-running, multi-step work in OpenClaw without losing it to resets: durable state, progress updates, smart "continue this" recovery, and optional subagent orchestration.
 
-This repo is the development/workbench version of the skill. It includes dogfooding artifacts, project-history docs, and helper scripts used to build and test the public skill.
+This skill is for long work that should survive interruption instead of vanishing with chat context.
 
 ## What it does
 
@@ -16,18 +16,15 @@ This repo is the development/workbench version of the skill. It includes dogfood
 
 ## Process model
 
-Durable Task Runner uses a hybrid process model that borrows useful patterns from Agile, PMP-style milestone/scope thinking, structured sequencing where dependencies justify it, and ITIL-style operational discipline.
-
-The goal is not to bury users in process or pretend this is one pure framework. The goal is to strengthen the backend architecture enough that long work actually finishes, keeps moving across resets/interruption, and stays visible while it is in flight.
+The design goal is simple: keep long work alive across resets without pretending there is magic.
 
 In practice, the runner:
-- scales the amount of process and artifact depth to the size/risk of the task
-- asks the user for a few key blanks when needed, then drives the rest through durable state and helper scripts
-- uses planning, checkpoints, verification, and resume logic to keep projects moving toward completion
-- treats robustness and continued real-world testing as ongoing goals of the framework itself
-- refuses to silently leave ordinary tasks in a fake `running` state forever; tasks without an executable continuation hook are reclassified/pause-cleaned instead of generating endless liveness theater
+- scales its structure to the size/risk of the task
+- records checkpoints, milestones, and verification explicitly
+- keeps enough state on disk to recover after interruption
+- refuses to leave ordinary tasks in fake `running` states forever
 
-The current priority is practical rather than grandiose: get projects to finish reliably. Industry-standard process ideas are used because they provide a stronger architecture for that than ad-hoc chat memory alone.
+This is meant to be practical, not ceremonial.
 
 ## Visibility and progress
 
@@ -44,73 +41,12 @@ So the bars are meaningful, but they are still model-based. They are best treate
 
 By default, reporting stays low-noise and milestone-oriented. The intended operating model is event-driven progress plus smart recovery after resets; recurring timed updates are optional, not the center of the design.
 
-## Repository layout
-
-### Public skill surface
-These are the files that matter for the published skill:
-- `SKILL.md`
-- `README.md`
-- `CHANGELOG.md`
-- `LICENSE`
-- `ATTRIBUTION.md`
-- `config/defaults.json`
-- `references/`
-- `scripts/`
-
-### Development / dogfooding artifacts
-These are useful in the repo, but should not be shoved directly into a ClawHub publish bundle:
-- `PLAN.md`
-- `BACKLOG.md`
-- `DECISIONS.md`
-- `STATUS.md`
-- `RESET-READY.md`
-- `RELEASE.md`
 
 ## Runtime requirements
 
 - Python 3.8+
 - no external Python dependencies; the scripts are stdlib-only
 - OpenClaw runtime/auth is required only for live message delivery paths
-
-## Development checks (repo only)
-
-The development repo includes local smoke checks that are intentionally **not** part of the ClawHub publish bundle.
-They are useful for maintainers, not required for normal skill installation/use.
-
-Example repo-local checks:
-
-```bash
-python3 scripts/task_validation_smoke.py
-python3 scripts/task_core_smoke.py
-python3 scripts/task_tick_all.py
-```
-
-## Prepare a clean ClawHub bundle
-
-```bash
-python3 scripts/prepare_publish.py
-```
-
-That builds a curated publish folder at:
-
-```text
-./dist/durable-task-runner
-```
-
-Publish from that folder, not from the full development repo root.
-The curated bundle intentionally excludes development-history docs and runtime task state.
-
-## Install locally for OpenClaw
-
-```bash
-./install.sh --link
-```
-
-Or make a copied install:
-
-```bash
-./install.sh --copy
-```
 
 ## Security / operational notes
 
@@ -182,14 +118,11 @@ scripts/task_install_tick_cron.sh --apply
 
 But that is now an optional layer, not the center of the product promise.
 
-## ClawHub publish shape
+## Product stance
 
-Recommended early-release posture:
-- tone: working early release, not fake-1.0 triumphalism
-- publish input: `dist/durable-task-runner`
-- keep the version/release notes honest to the actual tagged state of the repo
-- describe the core promise as **reset-safe durable state + explicit smart recovery**, not as an always-on unattended scheduler
-- treat recurring timed ticks as optional operational extras, not the primary value proposition
+The core promise is **reset-safe durable state + explicit smart recovery**.
+This skill should be presented as a practical recovery-first workflow, not as an always-on unattended scheduler.
+Recurring timed ticks are optional extras, not the primary value proposition.
 
 ## Provenance
 
