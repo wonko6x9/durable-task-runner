@@ -83,12 +83,14 @@ def extract_json_object(raw: str) -> dict[str, Any]:
     raise SystemExit(f"could not parse JSON payload from openclaw output: {raw}")
 
 
-def build_line(task_id: str, kind: str, reason: str | None) -> str:
-    line = run("python3", str(SCRIPT_DIR / "task_ticker.py"), task_id)
+def build_line(task_id: str, kind: str, reason: str | None) -> tuple[str, dict[str, Any]]:
+    snapshot_raw = run("python3", str(SCRIPT_DIR / "task_status_snapshot.py"), task_id)
+    snapshot = json.loads(snapshot_raw)
+    ticker = run("python3", str(SCRIPT_DIR / "task_ticker.py"), task_id)
     if kind == "immediate":
         prefix = f"update:{reason}" if reason else "update"
-        return f"{prefix} | {line}"
-    return line
+        return f"{prefix} | {ticker}", snapshot
+    return ticker, snapshot
 
 
 def perform_delivery(binding: dict[str, Any], line: str) -> dict[str, Any]:
@@ -133,7 +135,7 @@ def main() -> int:
     task_id = args.task_id
     task = load_task(task_id)
     binding = delivery_binding(task)
-    line = build_line(task_id, args.kind, args.reason or None)
+    line, snapshot = build_line(task_id, args.kind, args.reason or None)
     delivery = perform_delivery(binding, line)
 
     log_line = f"status sent ({args.kind}{':' + args.reason if args.reason else ''}, method={delivery['method']}): {line}"
@@ -146,6 +148,7 @@ def main() -> int:
         "kind": args.kind,
         "reason": args.reason,
         "line": line,
+        "snapshot": snapshot,
         "delivery": delivery,
     }, indent=2))
     return 0

@@ -1,6 +1,19 @@
 # Changelog
 
-## v0.1.3 (planned)
+## v0.1.5
+
+Release focus:
+- fix timed status/reporting behavior after immediate updates in live durable runs
+- centralize status snapshot rendering so ticker/send layers share one source of truth
+- keep cron-helper interval handling explicit and less confusing for publish users
+
+Expected notes:
+- timed reporting now respects a bounded cooldown after immediate sends instead of getting stuck behind stale gating
+- status delivery records the rendered snapshot payload alongside the sent line for easier diagnosis
+- ticker rendering now consumes the shared status snapshot helper instead of duplicating progress math
+- cron helper now takes `INTERVAL_SEC` and validates whole-minute cron-compatible values
+
+## v0.1.4
 
 Release focus:
 - make the ClawHub bundle smaller, clearer, and easier to trust at a glance
