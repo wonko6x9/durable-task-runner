@@ -13,17 +13,7 @@ Goal:
 from __future__ import annotations
 
 import argparse
-import json
-import subprocess
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-SCRIPT_DIR = ROOT / "scripts"
-
-
-def load_snapshot(task_id: str) -> dict:
-    out = subprocess.check_output(["python3", str(SCRIPT_DIR / "task_status_snapshot.py"), task_id], text=True)
-    return json.loads(out)
+from task_status_snapshot import build_snapshot
 
 
 def render(snapshot: dict) -> str:
@@ -41,7 +31,7 @@ def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("task_id")
     args = p.parse_args()
-    print(render(load_snapshot(args.task_id)))
+    print(render(build_snapshot(args.task_id)))
     return 0
 
 
